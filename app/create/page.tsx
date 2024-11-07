@@ -1,7 +1,6 @@
 "use client";
 
 import { ConnectButton } from "@mysten/dapp-kit";
-import useGetStakeTable from "@/application/use-get-stake-table";
 import useMintTraderCard from "@/application/mutation/use-mint-trader-card";
 import useCreateFund from "@/application/mutation/use-create-fund";
 import useAttendArena from "@/application/mutation/use-attend-arena";
@@ -13,7 +12,7 @@ export default function Home() {
   // const { mutate: stake } = useStake();
   // const { data } = useGetStakeTable();
   // console.log(data);
-  const { mutate, data } = useMintTraderCard();
+  const { mutate } = useMintTraderCard();
   const { mutate: attendArena } = useAttendArena();
   const { mutate: createFund } = useCreateFund();
   const { data: suiNS } = useGetOwnedSuiNS({
