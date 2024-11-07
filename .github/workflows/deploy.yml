@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_KEY_MAIN }}
           script: |
             cd ~/stingray-app/
-            git pull origin main
+            git pull
             pnpm install
             pm2 delete all
             pnpm run build
