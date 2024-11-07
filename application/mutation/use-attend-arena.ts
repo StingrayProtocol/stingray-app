@@ -108,6 +108,9 @@ const useAttendArena = () => {
       });
       console.log(result);
     },
+    onError: (error) => {
+      console.error(error);
+    },
   });
 };
 

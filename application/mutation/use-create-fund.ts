@@ -56,6 +56,9 @@ const useCreateFund = () => {
       });
       console.log(result);
     },
+    onError: (error) => {
+      console.error(error);
+    },
   });
 };
 
