@@ -16,6 +16,7 @@ import {
   Tag as AntdTag,
   Segmented as AntdSegmented,
   Form as AntdForm,
+  Steps as AntdSteps,
 } from "antd";
 import styled from "styled-components";
 
@@ -83,6 +84,8 @@ export const Statistic = styled(AntdStatistic)`
 export const Tag = styled(AntdTag)``;
 
 export const Form = styled(AntdForm)``;
+
+export const Steps = styled(AntdSteps)``;
 
 // colors: {
 //   neutral: {
