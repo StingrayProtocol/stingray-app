@@ -94,7 +94,12 @@ export const Image = styled(AntdImage)``;
 
 export const Checkbox = styled(AntdCheckbox)``;
 
-export const Upload = styled(AntdUpload)``;
+export const Upload = styled(AntdUpload)`
+  .ant-upload-select {
+    width: 200px !important;
+    height: 200px !important;
+  }
+`;
 
 // colors: {
 //   neutral: {

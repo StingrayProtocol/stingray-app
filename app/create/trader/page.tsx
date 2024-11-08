@@ -2,6 +2,7 @@
 
 import Step1 from "@/component/step1";
 import Step2 from "@/component/step2";
+import Step3 from "@/component/step3";
 import { Flex, Steps } from "@/styled-antd";
 import { useState } from "react";
 
@@ -72,6 +73,12 @@ const Page = () => {
             setIntro(intro);
             setCurrentStep(currentStep + 1);
           }}
+        />
+        <Step3
+          step={currentStep}
+          intro={intro}
+          suiNS={suiNS}
+          onConfirm={() => {}}
         />
       </Flex>
     </Flex>
