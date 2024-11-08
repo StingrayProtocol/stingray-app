@@ -1,7 +1,7 @@
 import { useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
-type UseGetOwnedSuiNS = Omit<
+type UseGetOwnedSuiNSProps = Omit<
   UseQueryOptions<
     {
       lists: {
@@ -12,18 +12,25 @@ type UseGetOwnedSuiNS = Omit<
       hasNextPage: boolean;
     },
     Error,
-    void
+    {
+      lists: {
+        name: string;
+        image_url: string;
+      }[];
+      nextCursor: string | null | undefined;
+      hasNextPage: boolean;
+    }
   > & {
     cursor: string | null | undefined;
   },
   "queryKey"
 >;
 
-const useGetOwnedSuiNS = ({ cursor, ...options }: UseGetOwnedSuiNS) => {
+const useGetOwnedSuiNS = (options?: UseGetOwnedSuiNSProps) => {
   const account = useCurrentAccount();
   const suiClient = useSuiClient();
   return useQuery({
-    queryKey: ["owned-sui-ns", account?.address, cursor],
+    queryKey: ["owned-sui-ns", account?.address],
     queryFn: async () => {
       if (!account) {
         throw new Error("Account not found");
@@ -39,6 +46,7 @@ const useGetOwnedSuiNS = ({ cursor, ...options }: UseGetOwnedSuiNS) => {
         options: {
           showDisplay: true,
         },
+        limit: 20,
       });
       return {
         lists: result.data.map((item) => ({

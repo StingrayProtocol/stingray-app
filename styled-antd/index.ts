@@ -17,6 +17,9 @@ import {
   Segmented as AntdSegmented,
   Form as AntdForm,
   Steps as AntdSteps,
+  Image as AntdImage,
+  Checkbox as AntdCheckbox,
+  Upload as AntdUpload,
 } from "antd";
 import styled from "styled-components";
 
@@ -86,6 +89,12 @@ export const Tag = styled(AntdTag)``;
 export const Form = styled(AntdForm)``;
 
 export const Steps = styled(AntdSteps)``;
+
+export const Image = styled(AntdImage)``;
+
+export const Checkbox = styled(AntdCheckbox)``;
+
+export const Upload = styled(AntdUpload)``;
 
 // colors: {
 //   neutral: {

@@ -34,7 +34,7 @@ const useCreateFund = () => {
       }
       const tx = new Transaction();
 
-      tx.moveCall({
+      const fund = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
         function: "create",
@@ -51,6 +51,31 @@ const useCreateFund = () => {
         ],
         typeArguments: ["0x2::sui::SUI"],
       }); //fund
+
+      // fund to share object
+      tx.moveCall({
+        package: process.env.NEXT_PUBLIC_PACKAGE,
+        module: "fund",
+        function: "to_share_object",
+        arguments: [
+          fund[0], //fund
+        ],
+        typeArguments: ["0x2::sui::SUI"],
+      });
+
+      // mint share
+      const share = tx.moveCall({
+        package: process.env.NEXT_PUBLIC_PACKAGE,
+        module: "fund_share",
+        function: "mint",
+        arguments: [
+          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
+          fund[1], //mint request
+        ],
+        typeArguments: ["0x2::sui::SUI"],
+      });
+
+      tx.transferObjects([share], account.address);
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });

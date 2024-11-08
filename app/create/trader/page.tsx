@@ -1,8 +1,14 @@
 "use client";
 
+import Step1 from "@/component/step1";
+import Step2 from "@/component/step2";
 import { Flex, Steps } from "@/styled-antd";
+import { useState } from "react";
 
-const page = () => {
+const Page = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [suiNS, setSuiNS] = useState("");
+  const [intro, setIntro] = useState("");
   const steps = [
     {
       title: "Step 1",
@@ -17,51 +23,59 @@ const page = () => {
       description: "Mint with 10 SUI",
     },
   ];
+  console.log(intro);
   return (
     <Flex
       style={{
         padding: 20,
+        height: "100vh",
       }}
       gap="large"
     >
-      <Steps current={0}>
-        {steps.map((item, i) => (
-          <Steps.Step
-            key={i}
-            title={item.title}
-            description={item.description}
-          />
-        ))}
-      </Steps>
+      <Flex
+        style={{
+          width: "400px",
+          height: "50%",
+          padding: 20,
+        }}
+      >
+        <Steps current={currentStep} direction="vertical">
+          {steps.map((item, i) => (
+            <Steps.Step
+              key={i}
+              title={item.title}
+              description={item.description}
+            />
+          ))}
+        </Steps>
+      </Flex>
+
       <Flex
         style={{
           width: "100%",
           height: "100%",
-          justifyContent: "center",
-          alignItems: "center",
+          position: "relative",
         }}
       >
-        <Flex
-          style={{
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
+        <Step1
+          step={currentStep}
+          onConfirm={({ suiNS }) => {
+            setSuiNS(suiNS);
+            console.log(suiNS);
+            setCurrentStep(currentStep + 1);
           }}
-          gap="large"
-        >
-          <Flex gap="middle">
-            <h1>SuiNS</h1>
-            <input type="text" />
-          </Flex>
-          <Flex gap="middle">
-            <h1>Trader</h1>
-            <input type="text" />
-          </Flex>
-          <button>Mint</button>
-        </Flex>
+        />
+        <Step2
+          step={currentStep}
+          suiNS={suiNS}
+          onConfirm={({ intro }) => {
+            setIntro(intro);
+            setCurrentStep(currentStep + 1);
+          }}
+        />
       </Flex>
     </Flex>
   );
 };
 
-export default page;
+export default Page;

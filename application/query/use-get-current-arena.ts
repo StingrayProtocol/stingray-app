@@ -1,6 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { Arena } from "@/type";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
-const useGetCurrentArena = () => {
+type UseGetCurrentArenaProps = UseQueryOptions<{
+  arena: {
+    week: Arena;
+    month: Arena;
+  };
+}>;
+
+const useGetCurrentArena = (options?: UseGetCurrentArenaProps) => {
   return useQuery({
     queryKey: ["current-arena"],
     queryFn: async () => {
@@ -11,6 +19,7 @@ const useGetCurrentArena = () => {
 
       return data;
     },
+    ...options,
   });
 };
 

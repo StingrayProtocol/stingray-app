@@ -20,13 +20,16 @@ const useAttendArena = () => {
       description = "",
       traderFee = 20,
     }: {
-      arena: string;
+      arena?: string;
       trader: string;
       description: string;
       traderFee: number;
     }) => {
       if (!account) {
         throw new Error("Account not found");
+      }
+      if (!arena) {
+        throw new Error("Arena not found");
       }
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
@@ -101,7 +104,7 @@ const useAttendArena = () => {
         typeArguments: ["0x2::sui::SUI"],
       });
 
-      tx.transferObjects(share, account.address);
+      tx.transferObjects([share], account.address);
 
       const result = await signAndExecuteTransaction({
         transaction: tx,
