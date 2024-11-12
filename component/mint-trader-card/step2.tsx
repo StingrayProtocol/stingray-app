@@ -1,17 +1,26 @@
-import useGetOwnedSuiNS from "@/application/use-get-owned-sui-ns";
+// import useGetOwnedSuiNS from "@/application/use-get-owned-sui-ns";
 import { getAnimationStyle } from "@/common/animation-style";
+import MainButton from "@/common/main-button";
 import { Button, Flex, Form, Image, Radio } from "@/styled-antd";
 
-const Step1 = ({
+const Step2 = ({
   step,
   onConfirm,
 }: {
   step: number;
   onConfirm: (value: { suiNS: string }) => void;
 }) => {
-  const { data: _suiNS } = useGetOwnedSuiNS();
+  // const { data: _suiNS } = useGetOwnedSuiNS();
+  // const suiNS = {
+  //   lists: Array.from(Array(50)).flatMap(() => _suiNS?.lists || []),
+  // };
   const suiNS = {
-    lists: Array.from(Array(50)).flatMap(() => _suiNS?.lists || []),
+    lists: [
+      {
+        name: "paulwu.sui",
+        image_url: "https://api-mainnet.suins.io/nfts/paulwu.sui/1750311497913",
+      },
+    ],
   };
   const [form] = Form.useForm();
   const selected = Form.useWatch("suiNS", form);
@@ -21,8 +30,11 @@ const Step1 = ({
         position: "absolute",
         width: "100%",
         height: "100%",
+        border: "1px solid rgba(255, 255, 255, 0.5)",
+        backgroundColor: "rgba(120, 0, 255, 0.2)",
+        borderRadius: "40px",
         padding: 20,
-        ...getAnimationStyle(0, step),
+        ...getAnimationStyle(1, step),
       }}
     >
       <Form
@@ -37,9 +49,9 @@ const Step1 = ({
         <Flex
           style={{
             padding: 20,
-            border: "1px solid #333",
             width: "100%",
             height: "100%",
+            borderRadius: "40px",
           }}
           justify="space-between"
           vertical
@@ -96,9 +108,9 @@ const Step1 = ({
 
           <Form.Item>
             <Flex justify="flex-end">
-              <Button type="primary" htmlType="submit" disabled={!selected}>
+              <MainButton type="primary" htmlType="submit" disabled={!selected}>
                 Confirm
-              </Button>
+              </MainButton>
             </Flex>
           </Form.Item>
         </Flex>
@@ -107,4 +119,4 @@ const Step1 = ({
   );
 };
 
-export default Step1;
+export default Step2;

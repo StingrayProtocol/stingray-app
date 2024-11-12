@@ -20,20 +20,27 @@ import {
   Image as AntdImage,
   Checkbox as AntdCheckbox,
   Upload as AntdUpload,
+  Tabs as AntdTabs,
+  Progress as AntdProgress,
+  Table as AntdTable,
 } from "antd";
 import styled from "styled-components";
 
 export const Title = styled(Typography.Title)`
   color: #fafafc !important;
   margin: 0 !important;
+  font-family: Kusanagi;
 `;
 
 export const Text = styled(Typography.Text)`
   margin: 0 !important;
   word-break: normal;
+  font-family: Montserrat;
 `;
 
-export const Button = styled(AntdButton)``;
+export const Button = styled(AntdButton)`
+  font-family: Montserrat;
+`;
 
 export const Flex = styled(AntdFlex)``;
 
@@ -59,22 +66,33 @@ export const InputNumber = styled(AntdInputNumber)``;
 
 export const Modal = styled(AntdModal)`
   .ant-modal-content {
-    background: #17171c;
+    background: rgba(0, 0, 23, 0.85);
   }
   .ant-modal-header {
-    background: #17171c;
-    border-bottom: 1px solid #313133;
+    background: rgba(0, 0, 23, 0.85);
   }
 `;
 
-export const Select = styled(AntdSelect)``;
+export const Select = styled(AntdSelect)`
+  .ant-select-selector {
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 40px !important;
+  }
+`;
 
 export const Radio = styled(AntdRadio)``;
 
 export const Segmented = styled(AntdSegmented)`
+  font-family: Montserrat;
   .ant-segmented-item {
+    margin-left: 4px !important;
+    margin-right: 4px !important;
+    padding: 4px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.1);
   }
-  .ant-segmented-thumb {
+  .ant-segmented-item-label {
+    text-overflow: inherit !important;
   }
 `;
 
@@ -86,9 +104,18 @@ export const Statistic = styled(AntdStatistic)`
 
 export const Tag = styled(AntdTag)``;
 
-export const Form = styled(AntdForm)``;
+export const Form = styled(AntdForm)`
+  .ant-form-item-control {
+    flex: none !important;
+    width: 100% !important;
+  }
+`;
 
-export const Steps = styled(AntdSteps)``;
+export const Steps = styled(AntdSteps)`
+  .ant-steps-item-finish .ant-steps-item-icon {
+    background-color: rgba(155, 155, 155, 0.5) !important;
+  }
+`;
 
 export const Image = styled(AntdImage)``;
 
@@ -96,10 +123,20 @@ export const Checkbox = styled(AntdCheckbox)``;
 
 export const Upload = styled(AntdUpload)`
   .ant-upload-select {
-    width: 200px !important;
-    height: 200px !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .ant-upload-wrapper {
+    width: 100% !important;
+    height: 100% !important;
   }
 `;
+
+export const Progress = styled(AntdProgress)``;
+
+export const Tabs = styled(AntdTabs)``;
+
+export const Table = styled(AntdTable)``;
 
 // colors: {
 //   neutral: {

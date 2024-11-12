@@ -1,9 +1,10 @@
 import { getAnimationStyle } from "@/common/animation-style";
+import MainButton from "@/common/main-button";
 import { Button, Flex, Form, Input, Text, Title } from "@/styled-antd";
 import { LockOutlined } from "@ant-design/icons";
 import { useEffect } from "react";
 
-const Step2 = ({
+const Step3 = ({
   step,
   suiNS,
   onConfirm,
@@ -23,8 +24,10 @@ const Step2 = ({
         position: "absolute",
         width: "100%",
         height: "100%",
+        border: "1px solid rgba(255, 255, 255, 0.5)",
+        borderRadius: "40px",
         padding: 20,
-        ...getAnimationStyle(1, step),
+        ...getAnimationStyle(2, step),
       }}
     >
       <Form
@@ -39,7 +42,6 @@ const Step2 = ({
         <Flex
           style={{
             padding: 20,
-            border: "1px solid #333",
             width: "100%",
             height: "100%",
           }}
@@ -56,29 +58,51 @@ const Step2 = ({
             gap="large"
           >
             <Form.Item
-              label={<Title level={4}>Trader Info</Title>}
+              layout="vertical"
+              label={
+                <Text
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Trader Info
+                </Text>
+              }
               name={"suiNS"}
             >
               <Input readOnly />
             </Form.Item>
             <Form.Item
+              layout="vertical"
               label={
-                <Flex gap="middle" vertical>
-                  <Title level={4}>Brief Intro</Title>
+                <Flex vertical>
                   <Text
                     style={{
-                      position: "absolute",
-                      top: "24px",
+                      fontSize: "24px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Brief Intro
+                  </Text>
+                  <Text
+                    style={{
                       fontSize: "12px",
                     }}
                   >
-                    Max 150 Words
+                    Max 100 Words
                   </Text>
                 </Flex>
               }
+              rules={[
+                {
+                  max: 100,
+                  message: "Max 100 words",
+                },
+              ]}
               name={"intro"}
             >
-              <Input.TextArea rows={4} />
+              <Input.TextArea rows={2} maxLength={100} />
             </Form.Item>
             <Flex gap="small">
               <LockOutlined
@@ -99,9 +123,9 @@ const Step2 = ({
 
           <Form.Item>
             <Flex justify="flex-end">
-              <Button type="primary" htmlType="submit">
+              <MainButton type="primary" htmlType="submit">
                 Confirm
-              </Button>
+              </MainButton>
             </Flex>
           </Form.Item>
         </Flex>
@@ -110,4 +134,4 @@ const Step2 = ({
   );
 };
 
-export default Step2;
+export default Step3;

@@ -1,12 +1,35 @@
+import { toTimestampms } from "@/common";
+import { postWalrusApi } from "@/common/walrus-api";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationOptions } from "@tanstack/react-query";
+import { message } from "antd";
+import useGetOwnedFund from "../query/use-get-owned-fund";
+import { syncDb } from "@/common/sync-db";
 
-const useCreateFund = () => {
+type UseCreateFundProps = UseMutationOptions<
+  void,
+  Error,
+  {
+    trader: string;
+    name?: string;
+    description?: string;
+    traderFee: number;
+    limit: number;
+    imageUrl: string;
+    amount: number;
+    startTime: number;
+    endTime: number;
+    tradeDuration: number;
+  }
+>;
+
+const useCreateFund = (options?: UseCreateFundProps) => {
   const account = useCurrentAccount();
+  const { refetch } = useGetOwnedFund();
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
@@ -16,12 +39,28 @@ const useCreateFund = () => {
   return useMutation({
     mutationFn: async ({
       trader,
+      name = "",
       description = "",
       traderFee = 20,
+      limit = 1,
+      imageUrl,
+      amount = 0.01,
+      startTime,
+      endTime,
+      tradeDuration,
+      roi,
     }: {
       trader: string;
+      name: string;
       description: string;
       traderFee: number;
+      limit: number;
+      imageUrl: string;
+      amount: number;
+      startTime: number;
+      endTime: number;
+      tradeDuration: number;
+      roi: number;
     }) => {
       if (!account) {
         throw new Error("Account not found");
@@ -32,22 +71,45 @@ const useCreateFund = () => {
       ) {
         throw new Error("Global config or package not found");
       }
-      const tx = new Transaction();
 
+      const response = await fetch(imageUrl);
+      const fundImageBlob = await response.blob();
+      message.loading("Uploading image to Walrus");
+      const fundImageID = await postWalrusApi(fundImageBlob);
+
+      const tx = new Transaction();
+      console.log(
+        trader,
+        name,
+        description,
+        traderFee,
+        limit,
+        imageUrl,
+        amount,
+        startTime,
+        endTime,
+        tradeDuration,
+        roi
+      );
       const fund = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
         function: "create",
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
+          tx.pure.string(name),
           tx.pure.string(description),
+          tx.pure.string(fundImageID), // image
           tx.object(trader), // trader
-          tx.pure.u64(traderFee), // trader fee
+          tx.pure.u64(traderFee * 100), // trader fee
           tx.pure.bool(false), // is arena
-          tx.pure.u64(Date.now() + 10000), //start time
-          tx.pure.u64(86400000), //invest duration
-          tx.pure.u64(Date.now() + 1000000), // end time
-          tx.splitCoins(tx.gas, [100000000]), // coin // temporary sui only
+          tx.pure.u64(startTime), //start time
+          tx.pure.u64(endTime - startTime), //invest duration
+          tx.pure.u64(endTime + toTimestampms(tradeDuration)), // end time
+          tx.pure.u64(limit * 10 ** 9), // limit amount
+          tx.pure.u64(roi * 100), // roi
+          tx.splitCoins(tx.gas, [amount * 10 ** 9]), // coin // temporary sui only
+          tx.object("0x6"),
         ],
         typeArguments: ["0x2::sui::SUI"],
       }); //fund
@@ -83,6 +145,12 @@ const useCreateFund = () => {
     },
     onError: (error) => {
       console.error(error);
+    },
+    ...options,
+    onSuccess: async () => {
+      await syncDb.fund();
+      await refetch();
+      message.success("Congratulations! You have successfully created a fund!");
     },
   });
 };

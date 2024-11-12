@@ -30,10 +30,81 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
           <AntdRegistry>
             <ConfigProvider
               theme={{
+                components: {
+                  Segmented: {
+                    // itemSelectedBg: "rgba(125, 125, 125, 0.2)",
+                    itemSelectedBg: "rgba(150, 0, 255, 0.5) !important",
+                    itemActiveBg: "rgba(150, 0, 255, 0.5) !important",
+                    // itemHoverBg: "transparent",
+                    // itemActiveBg: "transparent",
+                    // borderRadius: 40,
+                  },
+                  Select: {
+                    colorBgContainer: "rgba(155, 155, 155, 0.1)",
+                    selectorBg: "rgba(155, 155, 155, 0.1)",
+                    hoverBorderColor: "rgba(155, 155, 155, 0.1)",
+                    activeBorderColor: "rgba(155, 155, 155, 0.1)",
+                    activeOutlineColor: "rgba(155, 155, 155, 0.1)",
+                    multipleSelectorBgDisabled: "rgba(155, 155, 155, 0.1)",
+                    clearBg: "rgba(155, 155, 155, 0.1)",
+                    optionSelectedBg: "rgba(155, 155, 155, 0.2)",
+                    multipleItemBg: "rgba(155, 155, 155, 0.1)",
+                  },
+                  Button: {
+                    borderRadius: 40,
+                    textTextHoverColor: "white",
+                    textTextActiveColor: "white",
+                  },
+                  Steps: {
+                    navArrowColor: "rgba(155, 155, 155, 0.1)",
+                  },
+                  Modal: {
+                    contentBg: "rgba(155, 155, 155, 0.1)",
+                    headerBg: "rgba(155, 155, 155, 0.1)",
+                  },
+                  Input: {
+                    colorBorder: "rgba(255, 255, 255, 0.5)",
+                    hoverBorderColor: "rgba(255, 255, 255, 1)",
+                    activeBorderColor: "rgba(255, 255, 255, 1)",
+                    controlOutline: "rgba(255,255, 255, 0.1)",
+                    activeBg: "rgba(120, 0, 255, 0.2)",
+                    colorPrimaryBg: "rgba(120, 0, 255, 0.2)",
+                    colorBgBlur: "rgba(120, 0, 255, 0.2)",
+                    addonBg: "rgba(120, 0, 255, 0.2)",
+                    colorBgBase: "rgba(120, 0, 255, 0.2)",
+                    colorBgContainer: "rgba(120, 0, 255, 0.2)",
+                    fontSize: 28,
+                  },
+                  Tabs: {
+                    inkBarColor: "white",
+                    itemColor: "rgba(155, 155, 155, 0.5)",
+                    itemActiveColor: "white",
+                    itemHoverColor: "white",
+                    itemSelectedColor: "white",
+                  },
+                  Progress: {
+                    defaultColor: "white",
+                  },
+                  Radio: {
+                    fontSize: 24,
+                    colorBorder: "rgba(255, 255, 255, 0.5)",
+                    colorPrimary: "rgba(255, 255, 255, 0.5)",
+                    colorBgSolidHover: "rgba(255, 255, 255, 0.1)",
+                    colorTextLabel: "rgba(255, 255, 255, 0.5)",
+                  },
+                  Slider: {
+                    trackBg: "rgba(255, 255, 255, 0.5)",
+                    trackHoverBg: "rgba(255, 255, 255, 0.5)",
+                    dotBorderColor: "rgba(255, 255, 255, 0.5)",
+                  },
+                },
                 algorithm: theme.darkAlgorithm,
                 token: {
                   fontFamily: "Inter",
                   colorPrimaryText: "white",
+                  colorBgBase: "rgba(155, 155, 155, 0.1)",
+                  colorBgContainer: "rgba(155, 155, 155, 0.1)",
+                  colorPrimary: "#2a0067",
                 },
               }}
             >

@@ -1,16 +1,16 @@
 const beforeStepStyle = {
   opacity: 0,
-  transform: "translateY(150%)",
+  zIndex: -1,
 };
 
 const onStepStyle = {
   opacity: 1,
-  transform: "translateY(0)",
+  zIndex: 0,
 };
 
 const afterStepStyle = {
   opacity: 0,
-  transform: "translateY(-150%)",
+  zIndex: -1,
 };
 
 export const getAnimationStyle = (step: number, currentStep: number) => ({
@@ -19,5 +19,5 @@ export const getAnimationStyle = (step: number, currentStep: number) => ({
     : step === currentStep
     ? onStepStyle
     : afterStepStyle),
-  transition: "all 0.3s ease-in-out",
+  transition: "opacity 0.3s ease-in-out",
 });

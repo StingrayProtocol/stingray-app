@@ -1,0 +1,18 @@
+.solidButton {
+  background-color: rgb(42, 0, 103);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 40px;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 20px;
+}
+
+.solidButton:hover {
+  background-color: rgba(62, 0, 133, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.solidButton:active {
+  background-color: rgba(82, 0, 163, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}

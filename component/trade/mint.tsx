@@ -1,43 +1,62 @@
 "use client";
 
-import Step1 from "@/component/step1";
-import Step2 from "@/component/step2";
-import Step3 from "@/component/step3";
 import { Flex, Steps } from "@/styled-antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Step2 from "../mint-trader-card/step2";
+import Step3 from "../mint-trader-card/step3";
+import Step4 from "../mint-trader-card/step4";
+import Step1 from "../mint-trader-card/step1";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
-const Page = () => {
+const MintPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [suiNS, setSuiNS] = useState("");
   const [intro, setIntro] = useState("");
+  const account = useCurrentAccount();
+  useEffect(() => {
+    if (account?.address) {
+      setCurrentStep(1);
+    }
+  }, [account]);
   const steps = [
     {
       title: "Step 1",
-      description: "Select your SuiNS",
+      description: "Connect Wallet",
     },
     {
       title: "Step 2",
-      description: "Enter Trader Info",
+      description: "Select your SuiNS",
     },
     {
       title: "Step 3",
+      description: "Enter Trader Info",
+    },
+    {
+      title: "Step 4",
       description: "Mint with 10 SUI",
     },
   ];
-  console.log(intro);
   return (
     <Flex
       style={{
+        paddingLeft: "0px",
+        paddingRight: "0px",
         padding: 20,
-        height: "100vh",
+        paddingTop: "32px",
+        paddingBottom: "32px",
+        backgroundColor: "rgba(120, 0, 255, 0.2)",
+        borderRadius: "40px",
+        border: "1px solid rgba(255, 255, 255, 0.5)",
+        height: "768px",
       }}
-      gap="large"
+      align="center"
     >
       <Flex
         style={{
           width: "400px",
           height: "50%",
           padding: 20,
+          alignSelf: "flex-start",
         }}
       >
         <Steps current={currentStep} direction="vertical">
@@ -60,13 +79,19 @@ const Page = () => {
       >
         <Step1
           step={currentStep}
+          onConfirm={() => {
+            setCurrentStep(currentStep + 1);
+          }}
+        />
+        <Step2
+          step={currentStep}
           onConfirm={({ suiNS }) => {
             setSuiNS(suiNS);
             console.log(suiNS);
             setCurrentStep(currentStep + 1);
           }}
         />
-        <Step2
+        <Step3
           step={currentStep}
           suiNS={suiNS}
           onConfirm={({ intro }) => {
@@ -74,15 +99,10 @@ const Page = () => {
             setCurrentStep(currentStep + 1);
           }}
         />
-        <Step3
-          step={currentStep}
-          intro={intro}
-          suiNS={suiNS}
-          onConfirm={() => {}}
-        />
+        <Step4 step={currentStep} intro={intro} suiNS={suiNS} />
       </Flex>
     </Flex>
   );
 };
 
-export default Page;
+export default MintPage;

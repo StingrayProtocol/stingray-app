@@ -1,12 +1,23 @@
+import { postWalrusApi } from "@/common/walrus-api";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationOptions } from "@tanstack/react-query";
+import { message } from "antd";
+import useGetOwnedTraderCard from "../query/use-get-owned-trader-card";
+import { syncDb } from "@/common/sync-db";
+type UseMintTraderCardProps = UseMutationOptions<
+  void,
+  Error,
+  { suiNS: string; intro: string; imageUrl: string; canvasBlob: Blob }
+>;
 
-const useMintTraderCard = () => {
+const useMintTraderCard = (options?: UseMintTraderCardProps) => {
   const account = useCurrentAccount();
+  const { refetch } = useGetOwnedTraderCard();
+
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
@@ -14,7 +25,17 @@ const useMintTraderCard = () => {
       },
     });
   return useMutation({
-    mutationFn: async ({ suiNS }: { suiNS: string }) => {
+    mutationFn: async ({
+      suiNS,
+      intro = "",
+      imageUrl,
+      canvasBlob,
+    }: {
+      suiNS: string;
+      intro: string;
+      imageUrl: string;
+      canvasBlob: Blob;
+    }) => {
       if (!account) {
         throw new Error("Account not found");
       }
@@ -25,9 +46,22 @@ const useMintTraderCard = () => {
       ) {
         throw new Error("Global config, host controller or package not found");
       }
+
+      // const traderCard = await fetch({
+      //   method: "POST",
+      //   body: canvasBuffer
+      // })
+      // console.log(traderCard);
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      message.loading("Uploading image to Walrus");
+      const [pfp, traderCard] = await Promise.all([
+        postWalrusApi(blob),
+        postWalrusApi(canvasBlob),
+      ]);
       // const suiNSs = await getOwnedSuiNS({ owner: account?.address });
-      console.log(suiNS);
       const tx = new Transaction();
+      message.loading("Confirm transaction in your wallet");
 
       tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
@@ -37,24 +71,30 @@ const useMintTraderCard = () => {
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG),
           tx.object(process.env.NEXT_PUBLIC_HOST_CONTROLLER),
           // tx.object(suiNS), //sui ns
-          tx.pure.string((Date.now() + 1000).toString()),
-          tx.pure.string((Date.now() + 1000).toString()),
+          tx.pure.string(pfp),
+          tx.pure.string(traderCard),
+          tx.pure.string(intro),
           tx.splitCoins(tx.gas, [10000000]),
           tx.object("0x6"),
         ],
-        // typeArguments: [
-        //   "0xa9b4c8a8c2e2e1e070cde7e6443601dce5c1020a9ec881dc7be928b984ac3df4::token::TOKEN",
-        // ],
       });
-
-      // tx.setGasBudget(100);
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
       console.log(result);
+      return;
     },
     onError: (error) => {
       console.error(error);
+    },
+    ...options,
+    onSuccess: async () => {
+      message.success(
+        "Congratulations! You have successfully minted your trader card!"
+      );
+      await syncDb.traderCard();
+
+      refetch();
     },
   });
 };

@@ -17,6 +17,8 @@
     "@prisma/client": "^5.22.0",
     "@tanstack/react-query": "^5.56.2",
     "antd": "^5.21.0",
+    "chart.js": "^4.4.6",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "next": "14.2.13",
     "react": "^18",
     "react-dom": "^18",

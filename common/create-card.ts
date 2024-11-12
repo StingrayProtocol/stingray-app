@@ -3,30 +3,16 @@ import cardTemplate from "@/public/template.png";
 export const createCard = ({
   imageUrl,
   name,
+  intro,
 }: {
   imageUrl: string;
   name: string;
+  intro: string;
 }) => {
-  return new Promise<Buffer>(async (resolve, reject) => {
-    const canvas = document.createElement("canvas");
+  return new Promise<Blob>(async (resolve, reject) => {
+    const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
     const ctx = canvas?.getContext("2d");
     if (ctx) {
-      // draw round rect
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-      ctx.beginPath();
-      ctx.roundRect(128, 16, 256, 480, [40]);
-      ctx.stroke();
-
-      // Load the custom font
-      const font = new FontFace("Kusanagi", 'url("./Kusanagi.otf}")');
-      await font.load();
-
-      // Add the font to the document
-      document.fonts.add(font);
-
-      // Set the font in the context, and specify the size
-      ctx.font = `24px Kusanagi`;
-
       // Draw the text
       ctx.fillText(name, 150, 300);
 
@@ -36,49 +22,45 @@ export const createCard = ({
       image.onload = () => {
         const template = new Image();
         template.src = cardTemplate.src;
+
         template.onload = () => {
           ctx.imageSmoothingEnabled = true;
           ctx.drawImage(template, 0, 0, 512, 512);
-          ctx.drawImage(image, 122, 43, 268, 268);
-
-          //draw a bottom line
-          ctx.beginPath();
-          ctx.moveTo(142, 365);
-          ctx.lineTo(370, 365);
-          ctx.lineWidth = 0.5;
-          ctx.strokeStyle = "rgba(0, 0, 0, 1)";
-          ctx.stroke();
+          ctx.drawImage(image, 108, 38, 298, 298);
 
           // draw text
           ctx.font =
             name.length < 12
-              ? "bold 40px serif"
+              ? "24px Kusanagi"
               : name.length < 18
-              ? "bold 32px serif"
+              ? "18px Kusanagi"
               : name.length < 24
-              ? "bold 24px serif"
-              : "bold 18px serif";
-          ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+              ? "16px Kusanagi"
+              : "10px Kusanagi";
+          ctx.fillStyle = "rgba(0, 0, 0)";
           ctx.textAlign = "center";
-          ctx.fillText(name, 256, 360);
 
-          ctx.font = "14px serif";
-          ctx.textAlign = "left";
-          ctx.fillText("Last Name:", 122, 420);
-          ctx.fillText("First Name:", 122, 445);
-          ctx.fillText("Birth:", 122, 470);
-          ctx.fillText(name.split(".")[1], 190, 420);
-          ctx.fillText(name.split(".")[0], 190, 445);
+          ctx.fillText(name, 256, 370);
+
+          ctx.font = "16px Montserrat";
+          ctx.textAlign = "center";
+          const text = getCanvasText(intro, [], 0);
+          text?.forEach((text, i) => {
+            ctx.fillText(text, 256, 405 + i * 18);
+          });
+          ctx.font = "bold 14px Montserrat";
           const formattedDate = new Date().toLocaleDateString("en-US", {
             day: "numeric",
             month: "short",
             year: "numeric",
           });
-          ctx.fillText(formattedDate, 157, 470);
+          ctx.textAlign = "center";
+          ctx.fillText(formattedDate, 256, 475);
 
           canvas?.toBlob(async (blob) => {
             if (blob) {
-              resolve(Buffer.from(await blob.arrayBuffer()));
+              resolve(blob);
+              // resolve(Buffer.from(await blob.arrayBuffer()));
             } else {
               reject({ message: "Failed to create blob" });
             }
@@ -88,3 +70,25 @@ export const createCard = ({
     }
   });
 };
+
+function getCanvasText(text: string, result: string[], nextIndex: number) {
+  const rowTextNum = 35;
+  if (!text) return result;
+
+  if (text.length < nextIndex + rowTextNum) {
+    result.push(text?.substring(nextIndex));
+    return result;
+  }
+
+  let index = nextIndex + rowTextNum;
+
+  if (!text.substring(nextIndex + 20, nextIndex + 40).includes(" ")) {
+    result.push(text.substring(nextIndex, index));
+    return getCanvasText(text, result, index);
+  }
+  while (text[index] !== " ") {
+    index--;
+  }
+  result.push(text.substring(nextIndex, index));
+  return getCanvasText(text, result, index);
+}

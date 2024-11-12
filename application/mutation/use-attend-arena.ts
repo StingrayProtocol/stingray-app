@@ -1,11 +1,32 @@
+import { toTimestampms } from "@/common";
+import { postWalrusApi } from "@/common/walrus-api";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationOptions } from "@tanstack/react-query";
+import { message } from "antd";
 
-const useAttendArena = () => {
+type UseAttendArenaProps = UseMutationOptions<
+  void,
+  Error,
+  {
+    arenaId?: string;
+    trader: string;
+    name?: string;
+    description?: string;
+    traderFee: number;
+    limit: number;
+    imageUrl: string;
+    amount: number;
+    startTime: number;
+    endTime: number;
+    tradeDuration?: number;
+  }
+>;
+
+const useAttendArena = (options?: UseAttendArenaProps) => {
   const account = useCurrentAccount();
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
@@ -15,21 +36,40 @@ const useAttendArena = () => {
     });
   return useMutation({
     mutationFn: async ({
-      arena,
+      arenaId,
       trader,
+      name = "",
       description = "",
       traderFee = 20,
+      limit = 1,
+      imageUrl,
+      amount = 0.01,
+      startTime,
+      endTime,
+      tradeDuration,
+      roi,
     }: {
-      arena?: string;
+      arenaId?: string;
       trader: string;
+      name: string;
       description: string;
       traderFee: number;
+      limit: number;
+      imageUrl: string;
+      amount: number;
+      startTime: number;
+      endTime: number;
+      tradeDuration?: number;
+      roi: number;
     }) => {
       if (!account) {
         throw new Error("Account not found");
       }
-      if (!arena) {
-        throw new Error("Arena not found");
+      if (!tradeDuration) {
+        throw new Error("ArenaType not found");
+      }
+      if (!arenaId) {
+        throw new Error("ArenaId not found");
       }
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
@@ -37,13 +77,19 @@ const useAttendArena = () => {
       ) {
         throw new Error("Global config or package not found");
       }
+
+      const response = await fetch(imageUrl);
+      const fundImageBlob = await response.blob();
+      message.loading("Uploading image to Walrus");
+      const fundImageID = await postWalrusApi(fundImageBlob);
+
       const tx = new Transaction();
 
       const arenaRequest = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "arena",
         function: "create_arena_request",
-        arguments: [tx.pure.u8(0)], // 0 week, 1 month
+        arguments: [tx.pure.u8(0)], // 0 week, 1 month, 2 3 month, 3 year
         typeArguments: ["0x2::sui::SUI"],
       }); //arena_request
 
@@ -53,14 +99,19 @@ const useAttendArena = () => {
         function: "create",
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
+          tx.pure.string(name),
           tx.pure.string(description),
+          tx.pure.string(fundImageID), // image
           tx.object(trader), // trader
-          tx.pure.u64(traderFee), // trader fee
-          tx.pure.bool(false), // is arena
-          tx.pure.u64(Date.now() + 10000), //start time
-          tx.pure.u64(86400000), //invest duration
-          tx.pure.u64(Date.now() + 1000000), // end time
-          tx.splitCoins(tx.gas, [100000000]), // coin // temporary sui only
+          tx.pure.u64(traderFee * 100), // trader fee
+          tx.pure.bool(true), // is arena
+          tx.pure.u64(startTime), //start time
+          tx.pure.u64(endTime - startTime), //invest duration
+          tx.pure.u64(endTime + toTimestampms(tradeDuration)), // end time
+          tx.pure.u64(limit * 10 ** 9), // limit amount
+          tx.pure.u64(roi * 100), // roi
+          tx.splitCoins(tx.gas, [amount * 10 ** 9]), // coin // temporary sui only
+          tx.object("0x6"),
         ],
         typeArguments: ["0x2::sui::SUI"],
       }); //fund
@@ -73,7 +124,7 @@ const useAttendArena = () => {
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
           arenaRequest,
-          tx.object(arena), //arena
+          tx.object(arenaId), //arena
           fund[0], //fund
           tx.object(trader), // trader
           tx.object("0x6"),
@@ -114,6 +165,7 @@ const useAttendArena = () => {
     onError: (error) => {
       console.error(error);
     },
+    ...options,
   });
 };
 

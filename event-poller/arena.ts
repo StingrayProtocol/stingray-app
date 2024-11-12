@@ -1,7 +1,7 @@
 import { CronJob } from "cron";
 import { getFullnodeUrl } from "@mysten/sui/client";
 import dotenv from "dotenv";
-import { SuiService } from "@/service";
+import { SuiService } from "..//service";
 
 dotenv.config({
   path: "../.env",
@@ -10,7 +10,7 @@ dotenv.config({
 const rpcUrl = getFullnodeUrl("mainnet");
 
 const job = CronJob.from({
-  cronTime: "*/10 * * * * *",
+  cronTime: "*/20 * * * * *",
   onTick: async function () {
     const packageId = process.env.NEXT_PUBLIC_PACKAGE;
     if (!packageId) {
@@ -20,7 +20,7 @@ const job = CronJob.from({
       url: process.env.NEXT_PUBLIC_SUI_NETWORK_URL ?? rpcUrl,
     });
 
-    await suiService.upsertArenaEvents({ packageId });
+    await suiService.upsertArenaEvents();
   },
   start: true,
   timeZone: "America/Los_Angeles",

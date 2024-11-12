@@ -7,42 +7,58 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
+model trader_card {
+  object_id        String             @id
+  first_name       String
+  last_name        String
+  description      String
+  image_blob_id    String
+  owner_address    String
+  event_seq        String
+  tx_digest        String
+  timestamp        String
+  trader_operation trader_operation[]
+}
 
 model arena {
-  object_id   String   @id
-  period_type String
-  coin_type   String
-  start_time  String
-  end_time    String
+  object_id       String @id
+  start_time      String
+  end_time        String
   invest_duration String
   attend_duration String
-  fund        fund[]
-  event_seq   String
-  tx_digest   String
-  timestamp   String
+  fund            fund[]
+  event_seq       String
+  tx_digest       String
+  timestamp       String
 }
 
 model fund {
   object_id        String             @id
-  coin_type        String
-  arena            arena              @relation(fields: [arena_object_id], references: [object_id])
-  arena_object_id  String
-  init_amount      Float
-  owner            String
+  name             String
+  description      String
+  start_time       String
+  end_time         String
+  invest_duration  String
+  image_blob_id    String
+  arena            arena?             @relation(fields: [arena_object_id], references: [object_id])
+  arena_object_id  String?
+  owner_id         String
   fund_history     fund_history[]
   trader_operation trader_operation[]
+  trader_fee       String
+  limit_amount     String
+  expected_roi     String
   event_seq        String
   tx_digest        String
   timestamp        String
 }
 
 model fund_history {
-  id             Int      @id @default(autoincrement())
-  fund           fund     @relation(fields: [fund_object_id], references: [object_id])
+  share_id       String @id
+  fund           fund   @relation(fields: [fund_object_id], references: [object_id])
   fund_object_id String
-  amount         Float
-  invester       String
+  amount         String
+  investor       String
   event_seq      String
   tx_digest      String
   timestamp      String
@@ -50,15 +66,20 @@ model fund_history {
 
 // trader operation
 model trader_operation {
-  id             Int      @id @default(autoincrement())
-  fund           fund     @relation(fields: [fund_object_id], references: [object_id])
+  id             Int         @id @default(autoincrement())
+  fund           fund        @relation(fields: [fund_object_id], references: [object_id])
   fund_object_id String
   action         String
-  token_in       String
-  amount_in      Float
-  token_out      String
-  amount_out     Float
-  trader         String
+  token_in       String?
+  amount_in      String?
+  token_out      String?
+  amount_out     String?
+  token_1        String?
+  amount_1       String?
+  token_2        String?
+  amount_2       String?
+  trader_id      String
+  trader         trader_card @relation(fields: [trader_id], references: [object_id])
   event_seq      String
   tx_digest      String
   timestamp      String
