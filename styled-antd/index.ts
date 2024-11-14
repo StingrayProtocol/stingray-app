@@ -46,7 +46,14 @@ export const Flex = styled(AntdFlex)``;
 
 export const Input = styled(AntdInput)``;
 
-export const Tooltip = styled(AntdTooltip)``;
+export const Tooltip = styled(AntdTooltip)`
+  .ant-tooltip-inner {
+    background: rgba(0, 0, 23, 0.85);
+  }
+  .ant-tooltip-arrow-content {
+    border-top-color: rgba(0, 0, 23, 0.85) !important;
+  }
+`;
 
 export const Divider = styled(AntdDivider)`
   margin: 0 !important;

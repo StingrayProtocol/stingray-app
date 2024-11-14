@@ -1,12 +1,49 @@
 import { SuiService } from "@/service";
 import { getFullnodeUrl } from "@mysten/sui/client";
 
+export const toLocalISOString = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const time = date.getTime() - date.getTimezoneOffset() * 60 * 1000;
+
+  return new Date(time).toISOString().slice(0, 16);
+};
+
+export const removeLocalOffset = (timestamp: number) => {
+  const date = new Date(timestamp);
+  return date.getTime() + date.getTimezoneOffset() * 60 * 1000;
+};
+
 export const formatPrice = (price: number) => {
   return Intl.NumberFormat().format(price);
 };
 
 export const formatSuiPrice = (price: number) => {
-  return Intl.NumberFormat().format(price / 10 ** 9);
+  return Intl.NumberFormat("en-US", { maximumSignificantDigits: 9 }).format(
+    price / 10 ** 9
+  );
+};
+
+export const getDHMS = (diff: number) => {
+  const day = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hour = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minute = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const second = Math.floor((diff % (1000 * 60)) / 1000);
+  return `${day ? `${day}D ` : ""} ${hour ? `${hour}H ` : ""} ${
+    minute ? `${minute}M ` : ""
+  } ${second ? `${second}S ` : ""}`;
+};
+
+export const getFuturePeriod = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = date.getTime() - now.getTime();
+  const day = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hour = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minute = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const second = Math.floor((diff % (1000 * 60)) / 1000);
+  return `${day ? `${day}D ` : ""} ${hour ? `${hour}H ` : ""} ${
+    minute ? `${minute}M ` : ""
+  } ${second ? `${second}S ` : ""}`;
 };
 
 export const getRelativeTime = (timestamp: number) => {
@@ -37,14 +74,14 @@ export const formatAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
-export const toTimestampms = (d: number) => {
+export const typeToTimestampms = (d: number) => {
   switch (d) {
     case 0:
-      return 1000 * 60 * 60 * 24;
-    case 1:
       return 1000 * 60 * 60 * 24 * 7;
-    case 2:
+    case 1:
       return 1000 * 60 * 60 * 24 * 30;
+    case 2:
+      return 1000 * 60 * 60 * 24 * 30 * 3;
     case 3:
       return 1000 * 60 * 60 * 24 * 365;
     default:
@@ -79,7 +116,7 @@ export async function fetchWithRetry(
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
-      const target = otherUrls?.[attempts - 2] || url;
+      const target = otherUrls?.[attempts - 1] || url;
       console.log(target);
       const response = await fetch(target, fetchOptions);
       clearTimeout(timeoutId); // Clear the timeout if the fetch is successful

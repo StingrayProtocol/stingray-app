@@ -1,4 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+export type TraderOperation = {
+  id: string;
+  fund: Fund;
+  fund_object_id: string;
+  action: string;
+  protocol: string;
+  token_in: string;
+  amount_in: string;
+  token_out: string;
+  amount_out: string;
+  event_seq: string;
+  tx_digest: string;
+  timestamp: string;
+};
 
 export type FundHistory = {
   share_id: string;
@@ -28,7 +41,7 @@ export type Fund = {
   expected_roi: number;
   arena?: Arena;
   fund_history: FundHistory[];
-  trader_operation: any[];
+  trader_operation: TraderOperation[];
   event_seq: string;
   tx_digest: string;
   timestamp: string;
@@ -56,7 +69,7 @@ export type TraderCard = {
   event_seq: string;
   tx_digest: string;
   timestamp: string;
-  trader_operation: any[];
+  trader_operation: TraderOperation[];
 };
 
 export type SwapInfo = {
@@ -76,8 +89,18 @@ export type SwapInfo = {
   poolSecondType: string;
 };
 
-export type InvestTarget = {
-  fund: string;
-  trader: string;
-  fundType: string;
+export type Farming = {
+  name: string;
+  value: string;
+  liquidityTypename: string;
+  liquidityValue: number;
+  protocol: string;
 };
+
+export type FundBalance = {
+  name: string;
+  typename: string;
+  value: number;
+  decimal: number;
+  farmings: Farming[];
+}[];

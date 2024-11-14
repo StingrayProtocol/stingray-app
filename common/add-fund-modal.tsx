@@ -8,7 +8,7 @@ const AddFundModal = ({
   isOpen,
   onClose,
 }: {
-  fundId: string;
+  fundId?: string;
   isOpen: boolean;
   onClose: () => void;
 }) => {
@@ -39,6 +39,7 @@ const AddFundModal = ({
           form={form}
           onFinish={(d) => {
             const data = d as { amount: number };
+            if (!fundId) return;
             addFund({ fundId, amount: data.amount });
           }}
         >

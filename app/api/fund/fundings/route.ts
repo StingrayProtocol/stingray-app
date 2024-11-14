@@ -6,11 +6,18 @@ export async function GET() {
     (await prisma.fund.findMany({
       where: {
         start_time: {
-          lte: now,
+          lt: now.toString(),
         },
       },
+      include: {
+        fund_history: true,
+        trader_operation: true,
+      },
     })) ?? [];
+
   return Response.json(
-    funds?.filter((fund) => fund.start_time + fund.invest_duration >= now)
+    funds?.filter(
+      (fund) => Number(fund.start_time) + Number(fund.invest_duration) >= now
+    )
   );
 }

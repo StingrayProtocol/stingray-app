@@ -1,10 +1,9 @@
-import useGetAllFund from "@/application/query/use-get-all-fund";
-import { formatAddress, formatSuiPrice, getRelativeTime } from "@/common";
+import { formatSuiPrice } from "@/common";
 import AddFundModal from "@/common/add-fund-modal";
 import MainButton from "@/common/main-button";
 import FundCard from "@/component/fund-card";
 import FundPieChart from "@/component/fund-pie-chart";
-import { Button, Col, Flex, Progress, Row, Text, Title } from "@/styled-antd";
+import { Button, Flex, Progress, Text, Title } from "@/styled-antd";
 import { Fund } from "@/type";
 import {
   DollarOutlined,
@@ -12,19 +11,12 @@ import {
   PlusCircleFilled,
 } from "@ant-design/icons";
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import FundHistory from "./fund-history";
 
-const Funding = () => {
-  const { data: funds } = useGetAllFund();
-  const [fund, setFund] = useState<Fund>(funds?.[0]);
+const Funding = ({ fund }: { fund?: Fund }) => {
   const account = useCurrentAccount();
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (funds) {
-      setFund(funds[0]);
-    }
-  }, [funds]);
 
   const total = fund?.fund_history?.reduce(
     (acc, cur) => acc + Number(cur.amount),
@@ -33,11 +25,11 @@ const Funding = () => {
   const fundStatuses = [
     {
       label: "Target Funded Amount",
-      value: formatSuiPrice(fund?.limit_amount),
+      value: formatSuiPrice(fund?.limit_amount ?? 0),
     },
     {
       label: "Current Funded Amount",
-      value: formatSuiPrice(total),
+      value: formatSuiPrice(total ?? 0),
     },
   ];
 
@@ -52,7 +44,8 @@ const Funding = () => {
     },
   ];
 
-  const totalPercent = (total / fund?.limit_amount) * 100;
+  const totalPercent =
+    fund?.limit_amount && total ? (total / fund?.limit_amount) * 100 : 0;
 
   const hasPosition = fund?.fund_history?.find(
     (history) => history?.investor === account?.address
@@ -173,7 +166,7 @@ const Funding = () => {
                       fontSize: "12px",
                     }}
                   >
-                    {formatSuiPrice(fund?.limit_amount)} SUI
+                    {formatSuiPrice(fund?.limit_amount ?? 0)} SUI
                   </Text>
                 </Flex>
               </Flex>
@@ -240,49 +233,7 @@ const Funding = () => {
                 vertical
                 gap="small"
               >
-                {/* <Table
-                  dataSource={
-                    fund?.fund_history?.map((log) => ({
-                      key: log.share_id,
-                      investor: formatAddress(log.investor),
-                      amount: formatSuiPrice(Number(log.amount)),
-                      timestamp: getRelativeTime(Number(log.timestamp)),
-                    })) ?? []
-                  }
-                  columns={[
-                    {
-                      title: "Investor",
-                      dataIndex: "investor",
-                      key: "investor",
-                    },
-                    {
-                      title: "Amount",
-                      dataIndex: "amount",
-                      key: "amount",
-                    },
-                    {
-                      title: "Timestamp",
-                      dataIndex: "timestamp",
-                      key: "timestamp",
-                    },
-                  ]}
-                /> */}
-                {fund?.fund_history?.map((log) => (
-                  <Flex
-                    key={log.share_id}
-                    style={{
-                      width: "100%",
-                    }}
-                    justify="space-between"
-                  >
-                    <Text>{formatAddress(log.investor)}</Text>
-                    <Text>
-                      {Number(log.amount) > 0 ? "+" : "-"}
-                      {formatSuiPrice(Number(log.amount))} SUI
-                    </Text>
-                    <Text>{getRelativeTime(Number(log.timestamp))}</Text>
-                  </Flex>
-                ))}
+                <FundHistory fund={fund} />
               </Flex>
             </Flex>
             <Flex
@@ -389,23 +340,6 @@ const Funding = () => {
           setIsOpen(false);
         }}
       />
-
-      <Row gutter={16}>
-        {funds?.map((fund: Fund) => (
-          <Col
-            key={fund.object_id}
-            span={8}
-            style={{
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              setFund(fund);
-            }}
-          >
-            <FundCard fund={fund} />
-          </Col>
-        ))}
-      </Row>
     </Flex>
   );
 };

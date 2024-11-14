@@ -1,4 +1,4 @@
-import { toTimestampms } from "@/common";
+import { syncDb } from "@/common/sync-db";
 import { postWalrusApi } from "@/common/walrus-api";
 import {
   useCurrentAccount,
@@ -7,6 +7,7 @@ import {
 import { Transaction } from "@mysten/sui/transactions";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { message } from "antd";
+import useGetAllFund from "../query/use-get-all-fund";
 
 type UseAttendArenaProps = UseMutationOptions<
   void,
@@ -28,6 +29,7 @@ type UseAttendArenaProps = UseMutationOptions<
 
 const useAttendArena = (options?: UseAttendArenaProps) => {
   const account = useCurrentAccount();
+  const { refetch } = useGetAllFund();
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
@@ -77,7 +79,20 @@ const useAttendArena = (options?: UseAttendArenaProps) => {
       ) {
         throw new Error("Global config or package not found");
       }
-
+      console.log({
+        arenaId,
+        trader,
+        name,
+        description,
+        traderFee,
+        limit,
+        imageUrl,
+        amount,
+        startTime,
+        endTime,
+        tradeDuration,
+        roi,
+      });
       const response = await fetch(imageUrl);
       const fundImageBlob = await response.blob();
       message.loading("Uploading image to Walrus");
@@ -107,11 +122,10 @@ const useAttendArena = (options?: UseAttendArenaProps) => {
           tx.pure.bool(true), // is arena
           tx.pure.u64(startTime), //start time
           tx.pure.u64(endTime - startTime), //invest duration
-          tx.pure.u64(endTime + toTimestampms(tradeDuration)), // end time
+          tx.pure.u64(endTime + tradeDuration), // end time
           tx.pure.u64(limit * 10 ** 9), // limit amount
           tx.pure.u64(roi * 100), // roi
           tx.splitCoins(tx.gas, [amount * 10 ** 9]), // coin // temporary sui only
-          tx.object("0x6"),
         ],
         typeArguments: ["0x2::sui::SUI"],
       }); //fund
@@ -166,6 +180,10 @@ const useAttendArena = (options?: UseAttendArenaProps) => {
       console.error(error);
     },
     ...options,
+    onSuccess: async () => {
+      await syncDb.fund();
+      refetch();
+    },
   });
 };
 

@@ -1,0 +1,36 @@
+.createFundButton {
+  position: fixed !important;
+  right: 0px !important;
+  bottom: 180px !important;
+  font-size: 48px !important;
+  padding: 36px 12px !important;
+  z-index: 1000 !important;
+  border-radius: 50% !important;
+  transform: translateX(50%) !important;
+  transition: 0.3s !important;
+  cursor: pointer !important;
+  border: 5px solid white !important;
+  background: rgba(110, 7, 228, 1) !important;
+}
+
+.createFundButton:hover {
+  transform: translateX(0%) !important;
+  color: white !important;
+  border: 5px solid white !important;
+}
+
+.createFundText {
+  background: rgba(110, 7, 228, 1) !important;
+  border-radius: 36px !important;
+  border: 1px solid rgba(255, 255, 255, 1) !important;
+  position: fixed !important;
+  right: 100px !important;
+  bottom: 200px !important;
+  padding: 8px 16px !important;
+  font-size: 24px !important;
+  color: white !important;
+  z-index: 1000 !important;
+  cursor: pointer !important;
+  opacity: 0;
+  transition: 0.3s !important;
+}

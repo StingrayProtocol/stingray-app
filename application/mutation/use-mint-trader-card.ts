@@ -12,7 +12,9 @@ type UseMintTraderCardProps = UseMutationOptions<
   void,
   Error,
   { suiNS: string; intro: string; imageUrl: string; canvasBlob: Blob }
->;
+> & {
+  fund: string;
+};
 
 const useMintTraderCard = (options?: UseMintTraderCardProps) => {
   const account = useCurrentAccount();

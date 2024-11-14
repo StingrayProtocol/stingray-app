@@ -1,12 +1,31 @@
-import { formatPrice } from "@/common";
-import { Flex, Input, Select, Text } from "@/styled-antd";
-import { useRef, useState } from "react";
+import { coins } from "@/constant/coin";
+import { Flex, Image, Input, Select, Text } from "@/styled-antd";
+import { FundBalance } from "@/type";
+import { Skeleton } from "antd";
 
-const TokenInput = ({ isSwap }: { isSwap?: boolean }) => {
-  const inputRef = useRef(null);
-  const [token, setToken] = useState(""); //
-  const [amount, setAmount] = useState<string>(); //
-  const balance = 1000;
+const TokenInput = ({
+  protocol,
+  balance,
+  isInputLoading,
+  isSwap,
+  tokens,
+  token,
+  amount,
+  onSelectToken,
+  onChangeValue,
+}: {
+  protocol?: string;
+  balance?: FundBalance;
+  isInputLoading?: boolean;
+  isSwap?: boolean;
+  isSwapOut?: boolean;
+  tokens: string[];
+  token?: string;
+  amount: string;
+  onSelectToken?: (name: string) => void;
+  onChangeValue?: (value: string) => void;
+}) => {
+  const tokenBalance = balance?.find((b) => b.name === token);
   return (
     <Flex
       gap="middle"
@@ -36,28 +55,53 @@ const TokenInput = ({ isSwap }: { isSwap?: boolean }) => {
               cursor: "pointer",
             }}
             onClick={() => {
-              setAmount(balance.toString());
+              const tokenBalance = balance?.find((b) => b.name === token);
+              if (token && tokenBalance) {
+                onChangeValue?.(tokenBalance.value.toString());
+              } else {
+                onChangeValue?.("");
+              }
             }}
           >
             MAX
           </Text>
-          <Input
-            value={amount}
+          <Flex
             style={{
-              fontSize: "24px",
-              fontWeight: "bold",
-              background: "transparent",
-              border: "none",
-              outline: "none",
-              boxShadow: "none",
-              paddingTop: 0,
-              paddingBottom: 0,
+              position: "relative",
             }}
-            onChange={(e) => {
-              setAmount(e.target.value);
-            }}
-            placeholder="0.0"
-          />
+          >
+            <Skeleton.Input
+              style={{
+                display: isInputLoading ? "block" : "none",
+                width: "100%",
+                transition: "all 0.2s",
+                position: "absolute",
+                top: 3,
+                left: 10,
+              }}
+              active
+            />
+            <Input
+              value={amount}
+              style={{
+                opacity: isInputLoading ? 0 : 1,
+                fontSize: "24px",
+                fontWeight: "bold",
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                boxShadow: "none",
+                paddingTop: 0,
+                paddingBottom: 0,
+                transition: "all 0.2s",
+              }}
+              onChange={(e) => {
+                onChangeValue?.(e.target.value);
+              }}
+              placeholder="0"
+            />
+          </Flex>
+
           <Text
             style={{
               fontSize: "12px",
@@ -65,29 +109,54 @@ const TokenInput = ({ isSwap }: { isSwap?: boolean }) => {
               paddingLeft: 12,
             }}
           >
-            Balance: {formatPrice(balance)}
+            Balance: {tokenBalance?.value}
           </Text>
         </Flex>
         <Flex
           vertical
           style={{
             justifyContent: "flex-end",
+            alignItems: "flex-end",
           }}
           gap="4px"
         >
-          <Text />
-
           <Select
-            defaultValue="lucy"
+            value={token}
             style={{ width: 150, borderRadius: 40 }}
             size="large"
             dropdownStyle={{ background: "#2a0067" }}
-            onChange={() => {}}
-            options={[
-              { value: "jack", label: "Jack" },
-              { value: "lucy", label: "Lucy" },
-              { value: "Yiminghe", label: "yiminghe" },
-            ]}
+            onChange={(v: unknown) => {
+              const value = v as string;
+              onSelectToken?.(value);
+              onChangeValue?.("");
+            }}
+            options={tokens?.map((token) => ({
+              label: token,
+              value: token,
+            }))}
+            suffixIcon={
+              <Image
+                preview={false}
+                src={coins?.find((coin) => coin.name === token)?.iconUrl}
+                width={24}
+                height={24}
+                style={{ borderRadius: "50%", overflow: "hidden" }}
+              />
+            }
+            optionRender={(option) => (
+              <Flex gap="small">
+                <Image
+                  preview={false}
+                  src={
+                    coins?.find((coin) => coin.name === option.label)?.iconUrl
+                  }
+                  width={24}
+                  height={24}
+                  style={{ borderRadius: "50%", overflow: "hidden" }}
+                />
+                <Text style={{ color: "white" }}>{option.label}</Text>
+              </Flex>
+            )}
           />
           {!isSwap && (
             <Text
@@ -95,9 +164,14 @@ const TokenInput = ({ isSwap }: { isSwap?: boolean }) => {
                 textAlign: "right",
                 fontSize: "12px",
                 color: "rgba(255, 255, 255, 0.5)",
+                whiteSpace: "nowrap",
               }}
             >
-              Farming 500 USDC
+              Farming{" "}
+              {tokenBalance?.farmings.find(
+                (farming) => farming.protocol === protocol
+              )?.value ?? 0}{" "}
+              {tokenBalance?.name}
             </Text>
           )}
         </Flex>

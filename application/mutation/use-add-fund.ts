@@ -6,6 +6,7 @@ import {
 import { Transaction } from "@mysten/sui/transactions";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { message } from "antd";
+import useRefetchWholeFund from "./use-refetch-whole-fund";
 
 type UseAddFundProps = UseMutationOptions<
   void,
@@ -18,6 +19,7 @@ type UseAddFundProps = UseMutationOptions<
 
 const useAddFund = (options?: UseAddFundProps) => {
   const account = useCurrentAccount();
+  const { refetch } = useRefetchWholeFund();
   const { mutateAsync: signAndExecuteTransaction } =
     useSignAndExecuteTransaction({
       onError: (error) => {
@@ -81,7 +83,8 @@ const useAddFund = (options?: UseAddFundProps) => {
     ...options,
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
-      await syncDb.fund();
+      await syncDb.fundHistory();
+      refetch();
       message.success("Fund added successfully");
     },
   });

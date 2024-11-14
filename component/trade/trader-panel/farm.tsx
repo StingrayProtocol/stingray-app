@@ -1,19 +1,107 @@
 import { Flex, Image, Text } from "@/styled-antd";
 import TokenInput from "./token-input";
 import MainButton from "@/common/main-button";
+import { useState } from "react";
+import useScallopDeposit from "@/application/mutation/use-scallop-deposit";
+import useBucketDeposit from "@/application/mutation/use-bucket-deposit";
+import useSuilendDeposit from "@/application/mutation/use-suilend-deposit";
+import useScallopWithdraw from "@/application/mutation/use-scallop-withdraw";
+import useBucketWithdraw from "@/application/mutation/use-bucket-withdraw";
+import useSuilendWithdraw from "@/application/mutation/use-suilend-withdraw";
+import useGetOwnedTraderCard from "@/application/query/use-get-owned-trader-card";
+import useGetFundBalance from "@/application/query/use-get-fund-balance";
+import { coins } from "@/constant/coin";
 
 const Farm = ({
+  fundId,
   name,
   powerBy,
   activeFarm,
   onActiveFarm,
+  tokens,
 }: {
+  fundId?: string;
   name: string;
   powerBy: string;
   activeFarm: string;
   onActiveFarm: (name: string) => void;
+  tokens: string[];
 }) => {
   const isActived = activeFarm === name;
+  const { data: balance } = useGetFundBalance({
+    fundId,
+  });
+
+  const [token, setToken] = useState<string>(tokens?.[0]);
+  const [amount, setAmount] = useState<string>("");
+
+  const { data: traderCard } = useGetOwnedTraderCard();
+
+  const { mutate: scallopDeposit, isPending: isScallopDepositing } =
+    useScallopDeposit({
+      fund: fundId,
+      onSuccess: () => {
+        setAmount("");
+      },
+    });
+  const { mutate: bucketDeposit, isPending: isBucketDepositing } =
+    useBucketDeposit({
+      fund: fundId,
+      onSuccess: () => {
+        setAmount("");
+      },
+    });
+  const { mutate: suilendDeposit, isPending: isSuilendDepositing } =
+    useSuilendDeposit({
+      fund: fundId,
+      onSuccess: () => {
+        setAmount("");
+      },
+    });
+  const { mutate: scallopWithdraw, isPending: isScallopWithdrawing } =
+    useScallopWithdraw({
+      fund: fundId,
+      onSuccess: () => {
+        setAmount("");
+      },
+    });
+  const { mutate: bucketWithdraw, isPending: isBucketWithdrawing } =
+    useBucketWithdraw({
+      fund: fundId,
+      onSuccess: () => {
+        setAmount("");
+      },
+    });
+  const { mutate: suilendWithdraw, isPending: isSuilendWithdrawing } =
+    useSuilendWithdraw({
+      fund: fundId,
+      onSuccess: () => {
+        setAmount("");
+      },
+    });
+
+  const isDepositing =
+    (isScallopDepositing || isBucketDepositing || isSuilendDepositing) &&
+    isActived;
+  const isWithdrawing =
+    (isScallopWithdrawing || isBucketWithdrawing || isSuilendWithdrawing) &&
+    isActived;
+
+  const farmingBalance = balance
+    ?.find((b) => b.name === token)
+    ?.farmings?.find((f) => f.protocol === name)?.value;
+
+  const reStakeAmount =
+    Number(farmingBalance) *
+      Math.pow(10, coins.find((c) => c.name === token)?.decimal ?? 9) -
+    Number(amount) *
+      Math.pow(10, coins.find((c) => c.name === token)?.decimal ?? 9);
+
+  const isWithdrawInSuffient = reStakeAmount < 0 || isNaN(reStakeAmount);
+  const isDepositInsuffient =
+    Number(amount) > Number(balance?.find((b) => b.name === token)?.value);
+  const isAmountInvalid = isNaN(Number(amount)) || Number(amount) === 0;
+
   return (
     <Flex
       style={{
@@ -40,7 +128,12 @@ const Farm = ({
           onActiveFarm(name);
         }}
       >
-        <Image preview={false} width={150} src={powerBy} alt={name} />
+        <Image
+          preview={false}
+          width={name === "Bucket" ? 130 : 150}
+          src={powerBy}
+          alt={name}
+        />
       </Flex>
       <Flex
         vertical
@@ -54,14 +147,32 @@ const Farm = ({
           opacity: isActived ? 1 : 0,
           height: isActived ? "100%" : "0px",
           width: "100%",
+          zIndex: isActived ? 0 : -1,
         }}
       >
         <Flex align="center">
           <Text>Power By</Text>
-          <Image preview={false} width={150} src={powerBy} alt={name} />
+          <Image
+            preview={false}
+            width={name === "Bucket" ? 130 : 150}
+            src={powerBy}
+            alt={name}
+          />
         </Flex>
 
-        <TokenInput />
+        <TokenInput
+          protocol={name}
+          balance={balance}
+          amount={amount}
+          token={token}
+          tokens={tokens}
+          onSelectToken={(value) => {
+            setToken(value);
+          }}
+          onChangeValue={(value) => {
+            setAmount(value);
+          }}
+        />
 
         <Flex
           align="center"
@@ -82,6 +193,44 @@ const Farm = ({
               padding: "20px",
             }}
             size="large"
+            onClick={() => {
+              if (!traderCard?.object_id || !fundId) {
+                return;
+              }
+              if (name === "Scallop") {
+                scallopDeposit({
+                  amount,
+                  name: token,
+                  trader: traderCard?.object_id,
+                  fund: fundId,
+                });
+              } else if (name === "Bucket") {
+                const hasDeposit =
+                  (balance?.find((b) => b.name === token)?.farmings?.length ??
+                    0) > 0;
+                bucketDeposit({
+                  amount,
+                  name: token,
+                  trader: traderCard?.object_id,
+                  fund: fundId,
+                  hasDeposit,
+                });
+              } else if (name === "Suilend") {
+                suilendDeposit({
+                  amount,
+                  name: token,
+                  trader: traderCard?.object_id,
+                  fund: fundId,
+                });
+              }
+            }}
+            loading={isDepositing}
+            disabled={
+              isDepositing ||
+              isWithdrawing ||
+              isAmountInvalid ||
+              isDepositInsuffient
+            }
           >
             Deposit
           </MainButton>
@@ -96,6 +245,64 @@ const Farm = ({
               padding: "20px",
             }}
             size="large"
+            onClick={() => {
+              if (!traderCard?.object_id || !fundId) {
+                return;
+              }
+              const farmings = balance?.find((b) => b.name === token)?.farmings;
+              if (name === "Scallop") {
+                const liquidityAmount = farmings
+                  ?.find((f) => f.protocol === "Scallop")
+                  ?.liquidityValue.toString();
+                if (!liquidityAmount) {
+                  return;
+                }
+
+                scallopWithdraw({
+                  liquidityAmount: Number(liquidityAmount) - 1,
+                  reStakeAmount,
+                  name: token,
+                  trader: traderCard?.object_id,
+                  fund: fundId,
+                });
+              } else if (name === "Bucket") {
+                const liquidityAmount = farmings
+                  ?.find((f) => f.protocol === "Bucket")
+                  ?.liquidityValue.toString();
+
+                if (!liquidityAmount) {
+                  return;
+                }
+
+                bucketWithdraw({
+                  name: token,
+                  trader: traderCard?.object_id,
+                  fund: fundId,
+                  reStakeAmount,
+                });
+              } else if (name === "Suilend") {
+                const liquidityAmount = farmings
+                  ?.find((f) => f.protocol === "Suilend")
+                  ?.liquidityValue.toString();
+                if (!liquidityAmount) {
+                  return;
+                }
+                suilendWithdraw({
+                  liquidityAmount: Number(liquidityAmount) - 1,
+                  reStakeAmount,
+                  name: token,
+                  trader: traderCard?.object_id,
+                  fund: fundId,
+                });
+              }
+            }}
+            loading={isWithdrawing}
+            disabled={
+              isWithdrawing ||
+              isDepositing ||
+              isAmountInvalid ||
+              isWithdrawInSuffient
+            }
           >
             Withdraw
           </MainButton>

@@ -8,10 +8,10 @@ import {
   useDisconnectWallet,
   useSwitchAccount,
 } from "@mysten/dapp-kit";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const formatAddress = (address?: string) =>
-  `${address?.slice(0, 6)}...${address?.slice(-4)}`;
+  `${address?.slice(0, 4)}...${address?.slice(-4)}`;
 
 const ConnectButton = () => {
   const { mutate: switchAccount } = useSwitchAccount();
@@ -22,6 +22,11 @@ const ConnectButton = () => {
   const { mutate: disconnect } = useDisconnectWallet();
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    if (accounts.length === 0) {
+      disconnect();
+    }
+  }, [connectionStatus, accounts]);
   return (
     <>
       {connectionStatus === "connected" ? (
@@ -46,7 +51,7 @@ const ConnectButton = () => {
                 fontSize: "24px",
                 border: "1px solid rgba(255, 255, 255, 0.5)",
                 padding: "20px",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                backgroundColor: "rgba(105, 0, 200, 1)",
                 alignSelf: "center",
               }}
             >

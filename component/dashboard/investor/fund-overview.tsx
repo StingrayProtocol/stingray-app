@@ -1,7 +1,13 @@
-import { Flex, Text, Title } from "@/styled-antd";
+import { Flex, Image, Text, Title } from "@/styled-antd";
 import { CalendarOutlined, DollarCircleOutlined } from "@ant-design/icons";
-import { formatPrice } from "@/common";
-import PieChart from "@/component/fund-pie-chart";
+import { formatSuiPrice } from "@/common";
+import useGetBalance from "@/application/use-get-balance";
+import useGetInvestFund from "@/application/query/use-get-invest-fund";
+import stingray from "@/public/Stingray-White.png";
+import { useMemo } from "react";
+import { useCurrentAccount } from "@mysten/dapp-kit";
+import BalancePieChart from "@/component/balance-pie-chart";
+import CountDown from "@/component/count-down";
 
 const DataTitle = ({ children }: { children: React.ReactNode }) => (
   <Text style={{ fontSize: "12px" }}>{children}</Text>
@@ -12,6 +18,31 @@ const DataDescription = ({ children }: { children: React.ReactNode }) => (
 );
 
 const FundOverview = () => {
+  const balance = useGetBalance();
+  const { data: funds } = useGetInvestFund();
+  const account = useCurrentAccount();
+  const allFunds = [...(funds?.fundings ?? []), ...(funds?.runnings ?? [])];
+
+  const totalInvestedAmount = useMemo(() => {
+    return allFunds.reduce((acc, fund) => {
+      const historyTotal = fund.fund_history
+        .filter((history) => history.investor === account?.address)
+        .reduce((_acc, history) => _acc + Number(history.amount), 0);
+      return acc + historyTotal;
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account?.address, funds]);
+
+  const shortestAgreement = useMemo(() => {
+    return Math.min(
+      ...allFunds
+        ?.filter((fund) => Number(fund?.end_time) > Date.now())
+        ?.map((fund) => Number(fund.end_time))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [funds]);
+
+  console.log(shortestAgreement);
   const data = [
     {
       name: "Total Fund in Wallet:",
@@ -22,7 +53,7 @@ const FundOverview = () => {
               fontSize: "36px",
             }}
           />
-          <DataDescription>{formatPrice(10000)} SUI</DataDescription>
+          <DataDescription>{balance} SUI</DataDescription>
         </Flex>
       ),
     },
@@ -35,20 +66,24 @@ const FundOverview = () => {
               fontSize: "36px",
             }}
           />
-          <DataDescription>{formatPrice(2500)} SUI</DataDescription>
+          <DataDescription>
+            {formatSuiPrice(totalInvestedAmount)} SUI
+          </DataDescription>
         </Flex>
       ),
     },
     {
       name: "Current Invested Strategies:",
       value: (
-        <Flex gap="small">
-          <CalendarOutlined
-            style={{
-              fontSize: "36px",
-            }}
+        <Flex gap="small" align="center">
+          <Image
+            width={36}
+            height={36}
+            preview={false}
+            alt="Stingray"
+            src={stingray.src}
           />
-          <DataDescription>+{556}</DataDescription>
+          <DataDescription>{allFunds.length}</DataDescription>
         </Flex>
       ),
     },
@@ -61,7 +96,9 @@ const FundOverview = () => {
               fontSize: "36px",
             }}
           />
-          <DataDescription>+{35}%</DataDescription>
+          <DataDescription>
+            <CountDown timestamp={shortestAgreement} />
+          </DataDescription>
         </Flex>
       ),
     },
@@ -95,7 +132,7 @@ const FundOverview = () => {
             align="center"
             justify="center"
           >
-            {/* <PieChart /> */}
+            <BalancePieChart funds={allFunds} />
           </Flex>
         </Flex>
         <Flex

@@ -1,5 +1,8 @@
+import useGetFundBalance from "@/application/query/use-get-fund-balance";
+import useGetPositionValue from "@/application/query/use-get-position-value";
 import { formatPrice } from "@/common";
 import { Flex, Text, Title } from "@/styled-antd";
+import { Fund } from "@/type";
 import { CalendarOutlined, DollarCircleOutlined } from "@ant-design/icons";
 
 const DataTitle = ({ children }: { children: React.ReactNode }) => (
@@ -10,7 +13,13 @@ const DataDescription = ({ children }: { children: React.ReactNode }) => (
   <Text style={{ fontSize: "36px", fontWeight: "bold" }}>{children}</Text>
 );
 
-const FundAllocationFarming = () => {
+const FundAllocationFarming = ({ fund }: { fund?: Fund }) => {
+  const { data: balances } = useGetFundBalance({
+    fundId: fund?.object_id,
+  });
+  const { data: positionValue } = useGetPositionValue({
+    fund,
+  });
   const data = [
     {
       name: "Token Fund in Farming:",
@@ -67,50 +76,10 @@ const FundAllocationFarming = () => {
       ),
     },
   ];
-  const assets = [
-    {
-      name: "SUI",
-      value: 10000,
-    },
-    {
-      name: "USDT",
-      value: 10000,
-    },
-    {
-      name: "SCA",
-      value: 10000,
-    },
-    {
-      name: "BUCK",
-      value: 0,
-    },
-    {
-      name: "DEEP",
-      value: 0,
-    },
-    {
-      name: "SUI",
-      value: 10000,
-    },
-    {
-      name: "USDT",
-      value: 10000,
-    },
-    {
-      name: "SCA",
-      value: 10000,
-    },
-    {
-      name: "BUCK",
-      value: 0,
-    },
-    {
-      name: "DEEP",
-      value: 0,
-    },
-  ];
+
   return (
     <Flex
+      id="FundAllocationFarming"
       vertical
       style={{
         backgroundColor: "rgba(120, 0, 255, 0.2)",
@@ -166,37 +135,44 @@ const FundAllocationFarming = () => {
               height: "450px",
             }}
           >
-            {assets.map((item, index) => (
-              <Flex
-                key={index}
-                style={{
-                  padding: 20,
-                  backgroundColor: "rgba(80, 2, 155, 1)",
-                  borderRadius: "10px",
-                  width: "100%",
-                  border: "1px solid rgba(255, 255, 255, 0.5)",
-                }}
-                align="center"
-                justify="space-between"
-              >
-                <Text
+            {balances?.map((balance, index) => {
+              const farming =
+                balance.farmings.reduce(
+                  (acc, farming) => acc + Number(farming.value),
+                  0
+                ) ?? 0;
+              return (
+                <Flex
+                  key={index}
                   style={{
-                    fontSize: "24px",
-                    fontWeight: "bold",
+                    padding: 20,
+                    backgroundColor: "rgba(80, 2, 155, 1)",
+                    borderRadius: "10px",
+                    width: "100%",
+                    border: "1px solid rgba(255, 255, 255, 0.5)",
                   }}
+                  align="center"
+                  justify="space-between"
                 >
-                  {formatPrice(item.value)}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {item.name}
-                </Text>
-              </Flex>
-            ))}
+                  <Text
+                    style={{
+                      fontSize: "24px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {farming ?? 0}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {balance.name}
+                  </Text>
+                </Flex>
+              );
+            })}
           </Flex>
         </Flex>
       </Flex>

@@ -1,4 +1,3 @@
-import { toTimestampms } from "@/common";
 import { postWalrusApi } from "@/common/walrus-api";
 import {
   useCurrentAccount,
@@ -72,25 +71,23 @@ const useCreateFund = (options?: UseCreateFundProps) => {
         throw new Error("Global config or package not found");
       }
 
+      console.log(startTime);
+      console.log(new Date(startTime).toISOString());
+      console.log(new Date(startTime).toLocaleTimeString());
+      console.log(new Date(startTime).toUTCString());
+      console.log(new Date(endTime).toUTCString());
+
+      console.log(endTime);
+      console.log(tradeDuration);
+      console.log(endTime - startTime);
+
       const response = await fetch(imageUrl);
       const fundImageBlob = await response.blob();
       message.loading("Uploading image to Walrus");
       const fundImageID = await postWalrusApi(fundImageBlob);
 
       const tx = new Transaction();
-      console.log(
-        trader,
-        name,
-        description,
-        traderFee,
-        limit,
-        imageUrl,
-        amount,
-        startTime,
-        endTime,
-        tradeDuration,
-        roi
-      );
+
       const fund = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
@@ -103,13 +100,12 @@ const useCreateFund = (options?: UseCreateFundProps) => {
           tx.object(trader), // trader
           tx.pure.u64(traderFee * 100), // trader fee
           tx.pure.bool(false), // is arena
-          tx.pure.u64(startTime), //start time
+          tx.pure.u64(Date.now()), //start time
           tx.pure.u64(endTime - startTime), //invest duration
-          tx.pure.u64(endTime + toTimestampms(tradeDuration)), // end time
+          tx.pure.u64(endTime + tradeDuration), // end time
           tx.pure.u64(limit * 10 ** 9), // limit amount
           tx.pure.u64(roi * 100), // roi
           tx.splitCoins(tx.gas, [amount * 10 ** 9]), // coin // temporary sui only
-          tx.object("0x6"),
         ],
         typeArguments: ["0x2::sui::SUI"],
       }); //fund

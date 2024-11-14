@@ -102,7 +102,7 @@ const Step3 = ({
               ]}
               name={"intro"}
             >
-              <Input.TextArea rows={2} maxLength={100} />
+              <Input.TextArea showCount rows={5} maxLength={100} />
             </Form.Item>
             <Flex gap="small">
               <LockOutlined

@@ -27,9 +27,13 @@ const CreateFundModal = ({
       />
       <Flex
         style={{
-          zIndex: isOpen ? 10 : -1,
+          zIndex: isOpen ? 1001 : -1,
           opacity: isOpen ? 1 : 0,
           transition: "opacity 0.3s",
+          background: "rgba(0, 0, 20, 0.9)",
+          width: "100%",
+          maxWidth: "1200px",
+          borderRadius: "40px",
           position: "fixed",
           top: "50%",
           left: "50%",

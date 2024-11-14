@@ -52,8 +52,8 @@ export const postWalrus = async ({
       },
       body: content,
     },
-    5,
-    6000,
+    10,
+    20000,
     urls
   );
   console.log(response);

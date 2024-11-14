@@ -1,8 +1,30 @@
 import { Flex, Tabs, Text } from "@/styled-antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Funds from "../funds";
+import useGetPools from "@/application/query/use-get-pools";
 
 const Pools = () => {
-  const [activeKey, setActiveKey] = useState("Arena");
+  const [activeKey, setActiveKey] = useState("arena");
+  const { data: pools } = useGetPools();
+  const [arenaId, setArenaId] = useState<string>();
+  const [fundingId, setFundingId] = useState<string>();
+  const [runningId, setRunningId] = useState<string>();
+  const arena = pools?.arenas?.find((arena) => arena.object_id === arenaId);
+  useEffect(() => {
+    if (pools?.arenas?.length) {
+      setArenaId(pools.arenas[0].object_id);
+    }
+    if (pools?.fundings?.length) {
+      setFundingId(pools.fundings[0].object_id);
+    }
+    if (pools?.runnings?.length) {
+      setRunningId(pools.runnings[0].object_id);
+    }
+  }, [pools]);
+  const arenaStatus =
+    Number(arena?.start_time) + Number(arena?.invest_duration) > Date.now()
+      ? "funding"
+      : "running";
   const Label = ({
     name,
     children,
@@ -23,21 +45,48 @@ const Pools = () => {
     {
       key: "arena",
       label: <Label name={"arena"}>Arena</Label>,
-      children: <div>Content of Tab Pane 1</div>,
+      children: (
+        <Funds
+          status={arenaStatus}
+          fundId={arenaId}
+          funds={pools?.arenas}
+          onSelectFund={(value) => {
+            setArenaId(value);
+          }}
+        />
+      ),
     },
     {
       key: "funding",
       label: <Label name={"funding"}>Funding</Label>,
-      children: <></>,
+      children: (
+        <Funds
+          status="funding"
+          fundId={fundingId}
+          funds={pools?.fundings}
+          onSelectFund={(value) => {
+            setFundingId(value);
+          }}
+        />
+      ),
     },
     {
       key: "running",
       label: <Label name={"running"}>Running</Label>,
-      children: <div>Content of Tab Pane 1</div>,
+      children: (
+        <Funds
+          status="running"
+          fundId={runningId}
+          funds={pools?.runnings}
+          onSelectFund={(value) => {
+            setRunningId(value);
+          }}
+        />
+      ),
     },
   ];
   return (
-    <Flex style={{}}>
+    <Flex>
       <Tabs
         style={{
           width: "100%",

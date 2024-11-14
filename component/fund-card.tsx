@@ -1,3 +1,4 @@
+import useGetTraderCard from "@/application/query/use-get-trader-card";
 import TraderInfo from "@/common/trader-info";
 import { getWalrusDisplayUrl } from "@/common/walrus-api";
 import { Flex, Image, Progress, Text } from "@/styled-antd";
@@ -5,10 +6,20 @@ import { Fund } from "@/type";
 import { TeamOutlined } from "@ant-design/icons";
 
 const FundCard = ({ fund, card = true }: { fund?: Fund; card?: boolean }) => {
-  console.log(fund);
-  const total = fund?.fund_history?.reduce
+  const { data: traderCard } = useGetTraderCard({
+    address: fund?.owner_id,
+  });
+  const total = fund?.fund_history?.length
     ? fund?.fund_history.reduce((acc, cur) => acc + Number(cur.amount), 0)
     : 0;
+
+  //same investor aggregate to one
+  const investSet = new Set(
+    fund?.fund_history.map((history) => history.investor)
+  );
+
+  const investCount = investSet.size;
+
   return (
     <Flex
       style={{
@@ -35,7 +46,7 @@ const FundCard = ({ fund, card = true }: { fund?: Fund; card?: boolean }) => {
         />
       </Flex>
       <Flex gap="small" vertical flex="1">
-        <TraderInfo />
+        <TraderInfo traderCard={traderCard} />
         <Text
           style={{
             fontSize: "20px",
@@ -60,7 +71,7 @@ const FundCard = ({ fund, card = true }: { fund?: Fund; card?: boolean }) => {
             {fund?.amount} SUI (100%)
           </Text>
           <Flex gap="small">
-            <Text>{fund?.fund_history?.length ?? 1}</Text>
+            <Text>{investCount ?? 1}</Text>
             <TeamOutlined />
           </Flex>
         </Flex>

@@ -1,7 +1,8 @@
 // import useGetOwnedSuiNS from "@/application/use-get-owned-sui-ns";
+import useGetOwnedSuiNS from "@/application/use-get-owned-sui-ns";
 import { getAnimationStyle } from "@/common/animation-style";
 import MainButton from "@/common/main-button";
-import { Button, Flex, Form, Image, Radio } from "@/styled-antd";
+import { Button, Flex, Form, Image, Radio, Text } from "@/styled-antd";
 
 const Step2 = ({
   step,
@@ -10,18 +11,18 @@ const Step2 = ({
   step: number;
   onConfirm: (value: { suiNS: string }) => void;
 }) => {
-  // const { data: _suiNS } = useGetOwnedSuiNS();
+  const { data: suiNS } = useGetOwnedSuiNS();
   // const suiNS = {
   //   lists: Array.from(Array(50)).flatMap(() => _suiNS?.lists || []),
   // };
-  const suiNS = {
-    lists: [
-      {
-        name: "paulwu.sui",
-        image_url: "https://api-mainnet.suins.io/nfts/paulwu.sui/1750311497913",
-      },
-    ],
-  };
+  // const suiNS = {
+  //   lists: [
+  //     {
+  //       name: "paulwu.sui",
+  //       image_url: "https://api-mainnet.suins.io/nfts/paulwu.sui/1750311497913",
+  //     },
+  //   ],
+  // };
   const [form] = Form.useForm();
   const selected = Form.useWatch("suiNS", form);
   return (
@@ -63,6 +64,25 @@ const Step2 = ({
               overflow: "auto",
             }}
           >
+            {suiNS?.lists?.length === 0 && (
+              <Flex
+                style={{
+                  width: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                gap="large"
+                vertical
+              >
+                <Text>
+                  You don't have any SuiNS yet. Please go to suins.io to get
+                  one.
+                </Text>
+                <Button type="primary" href="https://suins.io/">
+                  Get Sui Name Service
+                </Button>
+              </Flex>
+            )}
             <Form.Item
               name={"suiNS"}
               rules={[

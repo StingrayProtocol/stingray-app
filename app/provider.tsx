@@ -97,6 +97,11 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
                     trackHoverBg: "rgba(255, 255, 255, 0.5)",
                     dotBorderColor: "rgba(255, 255, 255, 0.5)",
                   },
+                  Tooltip: {
+                    colorBgBase: "#2a0067",
+                    colorBgContainer: "#2a0067",
+                    colorPrimary: "white",
+                  },
                 },
                 algorithm: theme.darkAlgorithm,
                 token: {

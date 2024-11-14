@@ -19,6 +19,7 @@ import useCreateFund from "@/application/mutation/use-create-fund";
 import useGetOwnedTraderCard from "@/application/query/use-get-owned-trader-card";
 import useAttendArena from "@/application/mutation/use-attend-arena";
 import useGetCurrentArena from "@/application/query/use-get-current-arena";
+import { toLocalISOString, typeToTimestampms } from "@/common";
 
 const CreateFund = () => {
   const { data: traderCard } = useGetOwnedTraderCard();
@@ -31,23 +32,33 @@ const CreateFund = () => {
   const amount = Form.useWatch("amount", form);
   const isArena = Form.useWatch("isArena", form);
   const startTime = Form.useWatch("start_time", form);
+  const endTime = Form.useWatch("end_time", form);
   const [rate, setRate] = useState(20);
   const [roi, setRoi] = useState(5);
+  const [durationType, setDurationType] = useState(0);
   const { data: arenas } = useGetCurrentArena();
-
+  const arena = arenas?.[arenas?.length - 1];
+  console.log(arena);
   useEffect(() => {
-    if (isArena && arenas?.length) {
-      form.setFieldValue("start_time", new Date().toISOString().slice(0, 16));
+    if (isArena && Boolean(arena)) {
+      //no need to set
+      // form.setFieldValue(
+      //   "start_time",
+      //   toLocalISOString(
+      //     Number(arena?.start_time) + Number(arena?.attend_duration)
+      //   )
+      // );
+
       form.setFieldValue(
         "end_time",
-        new Date(
-          Number(arenas?.[0]?.end_time) + Number(arenas?.[0]?.attend_duration)
+        toLocalISOString(
+          Number(arena?.start_time) +
+            Number(arena?.attend_duration) +
+            Number(arena?.invest_duration)
         )
-          .toISOString()
-          .slice(0, 16)
       );
     }
-  }, [arenas, form, isArena]);
+  }, [arena, form, isArena]);
 
   const { mutate: createFund, isPending: isCreatingFund } = useCreateFund({
     onSuccess: () => {
@@ -144,13 +155,12 @@ const CreateFund = () => {
             limit: number;
             start_time: string;
             end_time: string;
-            trade_duration: number;
+            duration_type: number;
             roi: number;
           };
-
+          const startTime = new Date(data.start_time).getTime();
+          const endTime = new Date(data.end_time).getTime();
           if (!data.isArena) {
-            const startTime = new Date(data.start_time).getTime();
-            const endTime = new Date(data.end_time).getTime();
             createFund({
               imageUrl,
               name: data.strategy,
@@ -161,7 +171,7 @@ const CreateFund = () => {
               startTime,
               endTime,
               trader: traderCard?.object_id,
-              tradeDuration: Number(arenas?.[0]?.attend_duration),
+              tradeDuration: typeToTimestampms(durationType),
               roi: data.roi,
             });
           } else {
@@ -172,11 +182,11 @@ const CreateFund = () => {
               amount: data.amount,
               traderFee: data.rate,
               limit: data.limit,
-              startTime: new Date(data.start_time).getTime(),
-              endTime: new Date(data.end_time).getTime(),
+              startTime,
+              endTime,
               trader: traderCard?.object_id,
-              arenaId: arenas?.[0]?.object_id,
-              tradeDuration: Number(arenas?.[0]?.attend_duration),
+              arenaId: arena?.object_id,
+              tradeDuration: Number(arena?.attend_duration),
               roi: data.roi,
             });
           }
@@ -234,7 +244,7 @@ const CreateFund = () => {
                 {/* <Text>Accept format: .png, .jpeg</Text> */}
               </Form.Item>
               <Flex gap="small" vertical flex="1">
-                <TraderInfo />
+                <TraderInfo traderCard={traderCard} />
                 <Text
                   style={{
                     fontSize: "24px",
@@ -286,10 +296,16 @@ const CreateFund = () => {
               vertical
             >
               <Flex gap="small">
-                <Flex flex="1" vertical style={{}}>
+                <Flex
+                  flex="1"
+                  style={{
+                    flexShrink: 0,
+                  }}
+                  vertical
+                >
                   <Form.Item
                     layout="vertical"
-                    label={<Text style={{}}>Strategy Name (≤ 20 words)</Text>}
+                    label={<Text>Strategy Name (≤ 20 words)</Text>}
                     name={"strategy"}
                     rules={[
                       {
@@ -334,7 +350,7 @@ const CreateFund = () => {
                     layout="vertical"
                     style={{
                       marginBottom: "0px",
-                      marginTop: "30px",
+                      marginTop: "26px",
                     }}
                     initialValue={roi.toString()}
                     label={<Text>Expected ROI</Text>}
@@ -358,13 +374,7 @@ const CreateFund = () => {
                     </Flex>
                   </Form.Item>
                 </Flex>
-                <Flex
-                  flex="1"
-                  vertical
-                  style={{
-                    width: "100%",
-                  }}
-                >
+                <Flex flex="1" vertical>
                   <Form.Item
                     layout="vertical"
                     label={<Text>Limit Funding Amount</Text>}
@@ -432,17 +442,20 @@ const CreateFund = () => {
                     />
                   </Form.Item>
                   <Form.Item
-                    layout="vertical"
                     style={{
-                      width: "100%",
+                      display: "none",
                     }}
+                    layout="vertical"
+                    initialValue={toLocalISOString(new Date().getTime())}
                     label={<Text>Funding Start Time:</Text>}
                     name={"start_time"}
                   >
                     <Input
                       style={{
-                        background: "rgba(155, 155, 155, 0.2)",
                         width: "100%",
+                        fontSize: "24px",
+                        fontWeight: "bold",
+                        background: "rgba(155, 155, 155, 0.2)",
                       }}
                       disabled={isArena}
                       value={
@@ -455,9 +468,6 @@ const CreateFund = () => {
                   </Form.Item>
                   <Form.Item
                     layout="vertical"
-                    style={{
-                      width: "100%",
-                    }}
                     label={<Text>Funding End Time:</Text>}
                     name={"end_time"}
                     rules={[
@@ -468,7 +478,7 @@ const CreateFund = () => {
                             new Date(form.getFieldValue("start_time")).getTime()
                           ) {
                             return Promise.reject(
-                              "End time should be later than start time"
+                              "End time should be later than now"
                             );
                           }
                           if (!value) {
@@ -484,8 +494,77 @@ const CreateFund = () => {
                       type="datetime-local"
                       style={{
                         width: "100%",
+                        fontSize: "24px",
+                        fontWeight: "bold",
                         background: "rgba(155, 155, 155, 0.2)",
                       }}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    layout="vertical"
+                    style={{
+                      width: "100%",
+                    }}
+                    label={
+                      <Text
+                        style={{
+                          paddingBottom: 4,
+                        }}
+                      >
+                        Trading Peiod:{" "}
+                        {new Date(
+                          new Date(endTime).getTime()
+                        ).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}{" "}
+                        -{" "}
+                        {new Date(
+                          typeToTimestampms(durationType) +
+                            new Date(endTime).getTime()
+                        ).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </Text>
+                    }
+                    name={"duration_type"}
+                  >
+                    <Segmented
+                      onChange={(v: unknown) => {
+                        const value = v as number;
+                        setDurationType(value);
+                      }}
+                      style={{
+                        background: "rgba(120, 0, 255, 0.2)",
+                        border: "1px solid rgba(255,255,255, 0.5)",
+                        padding: "4px",
+                        fontSize: "28px",
+                        fontWeight: "bold",
+                        gap: 16,
+                        width: "100%",
+                      }}
+                      block
+                      options={[
+                        {
+                          label: "1W",
+                          value: 0,
+                        },
+                        {
+                          label: "1M",
+                          value: 1,
+                        },
+                        {
+                          label: "3M",
+                          value: 2,
+                        },
+                        {
+                          label: "1Y",
+                          value: 3,
+                        },
+                      ]}
                     />
                   </Form.Item>
                   <Form.Item
@@ -523,128 +602,70 @@ const CreateFund = () => {
                   width: "100%",
                 }}
                 align="center"
+                justify="space-between"
               >
-                <Flex flex="1" gap="small">
-                  <Flex flex="1">
-                    <Form.Item
-                      layout="vertical"
+                <Form.Item
+                  layout="vertical"
+                  label={
+                    <Text
                       style={{
-                        width: "100%",
+                        paddingBottom: 4,
                       }}
-                      label={
-                        <Text
-                          style={{
-                            paddingBottom: 4,
-                          }}
-                        >
-                          Funding Trade Duration
-                        </Text>
-                      }
-                      name={"trade_duration"}
                     >
-                      <Segmented
-                        style={{
-                          background: "rgba(120, 0, 255, 0.2)",
-                          border: "1px solid rgba(255,255,255, 0.5)",
-                          padding: "4px",
-                          fontSize: "28px",
-                          fontWeight: "bold",
-                          gap: 16,
-                          width: "100%",
-                        }}
-                        block
-                        options={[
-                          {
-                            label: "1W",
-                            value: 0,
-                          },
-                          {
-                            label: "1M",
-                            value: 1,
-                          },
-                          {
-                            label: "3M",
-                            value: 2,
-                          },
-                          {
-                            label: "1Y",
-                            value: 3,
-                          },
-                        ]}
-                      />
-                    </Form.Item>
-                  </Flex>
-                  <Flex flex="1" gap="small">
-                    <Form.Item
-                      layout="vertical"
+                      Join Arena
+                    </Text>
+                  }
+                  name={"isArena"}
+                  initialValue={false}
+                >
+                  <Segmented
+                    block
+                    style={{
+                      background: "rgba(120, 0, 255, 0.2)",
+                      border: "1px solid rgba(255,255,255, 0.5)",
+                      padding: "4px",
+                      fontSize: "32px",
+                      fontWeight: "bold",
+                      gap: 16,
+                      overflow: "hidden",
+                    }}
+                    options={[
+                      { label: "Y", value: true },
+                      { label: "N", value: false },
+                    ]}
+                  />
+                </Form.Item>
+                <Form.Item
+                  layout="vertical"
+                  label={
+                    <Text
                       style={{
-                        flex: 1,
+                        fontSize: 14,
                       }}
-                      label={
-                        <Text
-                          style={{
-                            paddingBottom: 4,
-                          }}
-                        >
-                          Join Arena
-                        </Text>
-                      }
-                      name={"isArena"}
-                      initialValue={false}
-                    >
-                      <Segmented
-                        block
-                        style={{
-                          background: "rgba(120, 0, 255, 0.2)",
-                          border: "1px solid rgba(255,255,255, 0.5)",
-                          padding: "4px",
-                          fontSize: "32px",
-                          fontWeight: "bold",
-                          gap: 16,
-                          overflow: "hidden",
-                        }}
-                        options={[
-                          { label: "Y", value: true },
-                          { label: "N", value: false },
-                        ]}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      style={{
-                        flex: 1,
-                      }}
-                      layout="vertical"
-                      label={
-                        <Text
-                          style={{
-                            fontSize: 14,
-                          }}
-                        />
-                      }
-                    >
-                      <MainButton
-                        type="primary"
-                        htmlType="submit"
-                        style={{
-                          width: "100%",
-                          border: "1px solid rgba(255, 255, 255, 0.5)",
-                          borderRadius: "40px",
-                          fontSize: "24px",
-                          fontWeight: "bold",
-                          padding: "22px",
-                          backgroundImage: `url(${buttonBg.src})`,
-                          margin: "0px",
-                          backgroundSize: "103%",
-                          backgroundRepeat: "no-repeat",
-                          backgroundPosition: "-2px -2px",
-                        }}
-                        loading={isCreatingFund || isAttendingArena}
-                      >
-                        Create
-                      </MainButton>
-                    </Form.Item>
-                  </Flex>
-                </Flex>
+                    />
+                  }
+                >
+                  <MainButton
+                    type="primary"
+                    htmlType="submit"
+                    style={{
+                      width: "100%",
+                      border: "1px solid rgba(255, 255, 255, 0.5)",
+                      borderRadius: "40px",
+                      fontSize: "24px",
+                      fontWeight: "bold",
+                      padding: "22px",
+                      backgroundImage: `url(${buttonBg.src})`,
+                      margin: "0px",
+                      backgroundSize: "103%",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "-2px -2px",
+                    }}
+                    loading={isCreatingFund || isAttendingArena}
+                  >
+                    Create
+                  </MainButton>
+                </Form.Item>
               </Flex>
             </Flex>
           </Flex>

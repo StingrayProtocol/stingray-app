@@ -7,6 +7,9 @@ const useGetBalance = () => {
   const [balance, setBalance] = useState<string>("");
 
   useEffect(() => {
+    if (!account?.address) {
+      return;
+    }
     (async () => {
       const coinBalance = await suiclient.getBalance({
         owner: account?.address ?? "",

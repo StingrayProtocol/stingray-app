@@ -1,6 +1,15 @@
 import { Flex, Text, Title } from "@/styled-antd";
 import { CalendarOutlined, DollarCircleOutlined } from "@ant-design/icons";
-import { formatPrice } from "@/common";
+import {
+  formatPrice,
+  formatSuiPrice,
+  getDHMS,
+  getFuturePeriod,
+} from "@/common";
+import TradePieChart from "@/component/trade-pie-chart";
+import { Fund } from "@/type";
+import useGetPositionValue from "@/application/query/use-get-position-value";
+import CountDown from "@/component/count-down";
 
 const DataTitle = ({ children }: { children: React.ReactNode }) => (
   <Text style={{ fontSize: "12px" }}>{children}</Text>
@@ -10,7 +19,16 @@ const DataDescription = ({ children }: { children: React.ReactNode }) => (
   <Text style={{ fontSize: "36px", fontWeight: "bold" }}>{children}</Text>
 );
 
-const FundStatus = () => {
+const FundStatus = ({ fund }: { fund?: Fund }) => {
+  const total = fund?.fund_history?.reduce(
+    (acc, cur) => acc + Number(cur.amount),
+    0
+  );
+
+  const { data: positionValue } = useGetPositionValue({
+    fund,
+  });
+
   const data = [
     {
       name: "Funded Amount:",
@@ -21,12 +39,12 @@ const FundStatus = () => {
               fontSize: "36px",
             }}
           />
-          <DataDescription>{formatPrice(10000)} SUI</DataDescription>
+          <DataDescription>{formatSuiPrice(total ?? 0)} SUI</DataDescription>
         </Flex>
       ),
     },
     {
-      name: "Funds Not Yet Invested:",
+      name: "Trading + Farming Position:",
       value: (
         <Flex gap="small">
           <DollarCircleOutlined
@@ -34,7 +52,31 @@ const FundStatus = () => {
               fontSize: "36px",
             }}
           />
-          <DataDescription>{formatPrice(2500)} SUI</DataDescription>
+          <DataDescription>
+            {(positionValue?.farming ?? 0 + (positionValue?.trading ?? 0))
+              .toFixed(9)
+              .replace(/\.?0+$/, "")}{" "}
+            SUI
+          </DataDescription>
+        </Flex>
+      ),
+    },
+    {
+      name: "Operation Agreement:",
+      value: (
+        <Flex gap="small">
+          <CalendarOutlined
+            style={{
+              fontSize: "36px",
+            }}
+          />
+          <DataDescription>
+            {getDHMS(
+              Number(fund?.end_time) -
+                Number(fund?.start_time) +
+                Number(fund?.invest_duration)
+            )}
+          </DataDescription>
         </Flex>
       ),
     },
@@ -47,20 +89,9 @@ const FundStatus = () => {
               fontSize: "36px",
             }}
           />
-          <DataDescription>+{556}</DataDescription>
-        </Flex>
-      ),
-    },
-    {
-      name: "Estimated ROI by Token Swap:",
-      value: (
-        <Flex gap="small">
-          <CalendarOutlined
-            style={{
-              fontSize: "36px",
-            }}
-          />
-          <DataDescription>+{35}%</DataDescription>
+          <DataDescription>
+            <CountDown timestamp={Number(fund?.end_time)} />
+          </DataDescription>
         </Flex>
       ),
     },
@@ -94,31 +125,7 @@ const FundStatus = () => {
             align="center"
             justify="center"
           >
-            <Pie
-              height={300}
-              width={300}
-              colorField="type"
-              data={[
-                {
-                  type: "Funded Amount",
-                  value: 10000,
-                },
-                {
-                  type: "Funds Not Yet Invested",
-                  value: 2500,
-                },
-              ]}
-              angleField="value"
-              legend={null}
-              style={{
-                fill: ({ type }: { type: string }) => {
-                  if (type === "Funded Amount") {
-                    return "rgba(120, 0, 255)";
-                  }
-                  return "rgba(200, 120, 255)";
-                },
-              }}
-            />
+            <TradePieChart fund={fund} />
           </Flex>
         </Flex>
         <Flex

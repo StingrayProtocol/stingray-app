@@ -1,14 +1,15 @@
 import { Fund } from "@/type";
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
-const FundPieChart = ({ fund }: { fund: Fund }) => {
+const FundPieChart = ({ fund }: { fund?: Fund }) => {
   const account = useCurrentAccount();
+  const randomId = useMemo(() => Math.random().toString(36).substring(7), []);
   useEffect(() => {
     const chartDom = document.querySelector(
-      `#fund${fund?.object_id}${account?.address}`
+      `#fund${fund?.object_id}${randomId}`
     ) as HTMLCanvasElement;
     if (!chartDom) {
       return;
@@ -20,7 +21,7 @@ const FundPieChart = ({ fund }: { fund: Fund }) => {
       ? selfFundHistory?.reduce((acc, cur) => acc + Number(cur.amount), 0)
       : 0;
     const limit = fund?.limit_amount;
-    const totalPercent = (total / limit) * 100;
+    const totalPercent = total && limit ? (total / limit) * 100 : 0;
     const remainingPercent = 100 - totalPercent;
 
     const chartData = [
@@ -72,8 +73,8 @@ const FundPieChart = ({ fund }: { fund: Fund }) => {
     return () => {
       chart.destroy();
     };
-  }, [fund, account]);
-  return <canvas id={`fund${fund?.object_id}${account?.address}`} />;
+  }, [fund, account, randomId]);
+  return <canvas id={`fund${fund?.object_id}${randomId}`} />;
 };
 
 export default FundPieChart;
