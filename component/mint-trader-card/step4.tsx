@@ -6,9 +6,9 @@ import { UploadProps } from "antd";
 import { useEffect, useState } from "react";
 import tempAvatar from "@/public/Stingray-Color.png";
 import useMintTraderCard from "@/application/mutation/use-mint-trader-card";
-import { useRouter } from "next/navigation";
 import { beforeUpload, FileType, getBase64 } from "@/common/upload-utils";
 import MainButton from "@/common/main-button";
+import useGetOwnedTraderCard from "@/application/query/use-get-owned-trader-card";
 
 const Step4 = ({
   step,
@@ -27,8 +27,8 @@ const Step4 = ({
   const [imageUrl, setImageUrl] = useState<string>();
   const [canvasBlob, setCanvasBlob] = useState<Blob>();
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const { mutate: mint, isPending: isMinting, isSuccess } = useMintTraderCard();
+  const { refetch } = useGetOwnedTraderCard();
 
   const UploadButton = (
     <Flex
@@ -180,13 +180,32 @@ const Step4 = ({
                     width: "100%",
                   }}
                 >
-                  <Title level={4}>Congradulation!</Title>
-                  <Text>You have successfully minted your funder ID!</Text>
-                  <Text>It&apos;s time to get some funding!</Text>
+                  <Title
+                    level={4}
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    Congradulation!
+                  </Title>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    You have successfully minted your funder ID!
+                  </Text>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    It&apos;s time to get some funding!
+                  </Text>
                   <Button
                     type="primary"
                     onClick={() => {
-                      router.push("/create/fund");
+                      refetch();
                     }}
                   >
                     Get Fund

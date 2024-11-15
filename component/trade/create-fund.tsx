@@ -225,7 +225,7 @@ const CreateFund = () => {
                   className="avatar-uploader"
                   accept=".png,.jpeg"
                   showUploadList={false}
-                  action=""
+                  action={""}
                   beforeUpload={beforeUpload}
                   onChange={handleChange}
                 >
