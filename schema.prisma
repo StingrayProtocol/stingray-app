@@ -53,10 +53,10 @@ model fund {
 }
 
 model fund_history {
-  share_id       String @id
-  fund           fund   @relation(fields: [fund_object_id], references: [object_id])
+  share_id       String  @id
+  fund           fund    @relation(fields: [fund_object_id], references: [object_id])
   fund_object_id String
-  redeemed       String
+  redeemed       Boolean
   amount         String
   investor       String
   event_seq      String

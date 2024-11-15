@@ -446,6 +446,7 @@ export class SuiService {
       const object: {
         share_id: string;
         fund_object_id: string;
+        redeemed: boolean;
         amount: string;
         investor: string;
         event_seq: string;
@@ -454,6 +455,7 @@ export class SuiService {
       } = {
         share_id: data.share_id,
         fund_object_id: data.fund_id,
+        redeemed: false,
         amount: data.invest_amount,
         investor: data.investor,
         event_seq: event.id.eventSeq,
