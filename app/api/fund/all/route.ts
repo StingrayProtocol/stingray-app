@@ -8,5 +8,6 @@ export async function GET() {
         trader_operation: true,
       },
     })) ?? [];
+  console.log(funds, "All!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   return Response.json(funds);
 }

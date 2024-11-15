@@ -13,5 +13,10 @@ export async function GET() {
         arena: true,
       },
     })) ?? [];
+  console.log(
+    funds,
+    "arena fund!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  );
+
   return Response.json(funds);
 }

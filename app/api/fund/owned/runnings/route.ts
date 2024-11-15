@@ -23,6 +23,10 @@ export async function GET(req: Request) {
         trader_operation: true,
       },
     })) ?? undefined;
+  console.log(
+    funds,
+    "owned runnings!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  );
   return Response.json(
     funds?.filter(
       (fund) =>
