@@ -144,10 +144,11 @@ const useCreateFund = (options?: UseCreateFundProps) => {
       console.error(error);
     },
     ...options,
-    onSuccess: async () => {
+    onSuccess: async (data, variable, context) => {
       await syncDb.fund();
       await refetch();
       message.success("Congratulations! You have successfully created a fund!");
+      options?.onSuccess?.(data, variable, context);
     },
   });
 };

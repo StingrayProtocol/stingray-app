@@ -184,12 +184,14 @@ export class SuiService {
           eventSeq: lastFund.event_seq,
         }
       : undefined;
+    console.log(nextCursor, "nextCursor");
     const events = await this.queryEvents({
       module: "fund",
       packageId,
       eventType: "CreatedFund",
       nextCursor,
     });
+    console.log(events);
     type FundData = {
       name: string;
       description: string;

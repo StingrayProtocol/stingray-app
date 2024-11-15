@@ -20,11 +20,13 @@ import useGetOwnedTraderCard from "@/application/query/use-get-owned-trader-card
 import useAttendArena from "@/application/mutation/use-attend-arena";
 import useGetCurrentArena from "@/application/query/use-get-current-arena";
 import { toLocalISOString, typeToTimestampms } from "@/common";
+import { useRouter } from "next/router";
 
 const CreateFund = () => {
   const { data: traderCard } = useGetOwnedTraderCard();
   const [imageUrl, setImageUrl] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const { push } = useRouter();
   const [form] = Form.useForm();
   const strategy = Form.useWatch("strategy", form);
   const intro = Form.useWatch("intro", form);
@@ -62,7 +64,8 @@ const CreateFund = () => {
 
   const { mutate: createFund, isPending: isCreatingFund } = useCreateFund({
     onSuccess: () => {
-      message.success("Create fund success");
+      form.resetFields();
+      push("/dashboard/investor");
     },
   });
 

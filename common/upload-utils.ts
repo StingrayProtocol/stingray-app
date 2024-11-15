@@ -17,5 +17,5 @@ export const beforeUpload = (file: FileType) => {
   if (!isLt2M) {
     message.error("Image must smaller than 2MB!");
   }
-  return false;
+  return isJpgOrPng && isLt2M;
 };
