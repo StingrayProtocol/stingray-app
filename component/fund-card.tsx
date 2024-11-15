@@ -1,4 +1,4 @@
-import useGetTraderCard from "@/application/query/use-get-trader-card";
+import useGetTraderCardId from "@/application/query/use-get-trader-card-by-id";
 import TraderInfo from "@/common/trader-info";
 import { getWalrusDisplayUrl } from "@/common/walrus-api";
 import { Flex, Image, Progress, Text } from "@/styled-antd";
@@ -6,8 +6,8 @@ import { Fund } from "@/type";
 import { TeamOutlined } from "@ant-design/icons";
 
 const FundCard = ({ fund, card = true }: { fund?: Fund; card?: boolean }) => {
-  const { data: traderCard } = useGetTraderCard({
-    address: fund?.owner_id,
+  const { data: traderCard } = useGetTraderCardId({
+    objectId: fund?.owner_id,
   });
   const total = fund?.fund_history?.length
     ? fund?.fund_history.reduce((acc, cur) => acc + Number(cur.amount), 0)

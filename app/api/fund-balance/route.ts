@@ -26,12 +26,11 @@ export async function GET(req: Request) {
           SELECT *, 
           LAG(action) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_action,
           LAG(protocol) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_protocol,
-          SUM(CASE WHEN action = 'Withdraw' THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
+          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Suilend' THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
           FROM trader_operation
           ORDER BY timestamp DESC, event_seq DESC
       ) AS subquery
       WHERE action = 'Deposit' AND protocol = 'Suilend' AND fund_object_id = ${fundId}
-        AND ((prev_action = 'Deposit' AND prev_protocol = 'Suilend') OR prev_action IS NULL)
         AND withdraw_encountered = 0
       ORDER BY timestamp, event_seq DESC;`,
     prisma.$queryRaw`
@@ -40,12 +39,11 @@ export async function GET(req: Request) {
           SELECT *, 
           LAG(action) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_action,
           LAG(protocol) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_protocol,
-          SUM(CASE WHEN action = 'Withdraw' THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
+          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Scallop' THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
           FROM trader_operation
           ORDER BY timestamp DESC, event_seq DESC
       ) AS subquery
       WHERE action = 'Deposit' AND protocol = 'Scallop' AND fund_object_id = ${fundId}
-        AND ((prev_action = 'Deposit' AND prev_protocol = 'Scallop') OR prev_action IS NULL)
         AND withdraw_encountered = 0
       ORDER BY timestamp, event_seq DESC;`,
   ]);

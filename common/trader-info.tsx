@@ -33,10 +33,10 @@ const TraderInfo = ({
             src={getWalrusDisplayUrl(
               traderCard?.image_blob_id || _traderCard?.image_blob_id
             )}
-            alt={traderCard?.last_name}
+            alt={traderCard?.first_name}
           />
         ) : (
-          <Image preview={false} src={logo.src} alt={traderCard?.last_name} />
+          <Image preview={false} src={logo.src} alt={traderCard?.first_name} />
         )}
       </Flex>
       <Text
@@ -45,8 +45,8 @@ const TraderInfo = ({
           fontWeight: 600,
         }}
       >{`${
-        traderCard?.last_name ??
-        _traderCard?.last_name ??
+        traderCard?.first_name ??
+        _traderCard?.first_name ??
         formatAddress(address)
       }`}</Text>
     </Flex>

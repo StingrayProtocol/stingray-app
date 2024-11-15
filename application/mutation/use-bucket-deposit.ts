@@ -128,7 +128,7 @@ const useBucketDeposit = (options?: UseBucketDespositProps) => {
       const [takeAsset, takeRequest] = tx.moveCall({
         package: packageId,
         module: "fund",
-        function: "take_1_liquidity_for_1_nonliquidity",
+        function: "take_1_liquidity_for_1_nonliquidity_by_trader",
         arguments: [
           tx.object(configId),
           tx.object(fund),
@@ -160,7 +160,7 @@ const useBucketDeposit = (options?: UseBucketDespositProps) => {
       tx.moveCall({
         package: packageId,
         module: "fund",
-        function: "put_1_liquidity_for_1_nonliquidity",
+        function: "put_1_liquidity_for_1_nonliquidity_by_all",
         arguments: [
           tx.object(configId),
           tx.object(fund),
