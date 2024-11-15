@@ -131,21 +131,23 @@ const Header = () => {
               overflow: "hidden",
             }}
           >
-            <Button
-              onClick={() => {
-                router.push(`/dashboard/trader`);
-              }}
-              style={{
-                textShadow:
-                  pathname.split("/")?.[2] === "trader"
-                    ? "0px 0px 10px #fff"
-                    : "none",
-              }}
-              type="text"
-              size="middle"
-            >
-              Trader
-            </Button>
+            {Boolean(traderCard) && (
+              <Button
+                onClick={() => {
+                  router.push(`/dashboard/trader`);
+                }}
+                style={{
+                  textShadow:
+                    pathname.split("/")?.[2] === "trader"
+                      ? "0px 0px 10px #fff"
+                      : "none",
+                }}
+                type="text"
+                size="middle"
+              >
+                Trader
+              </Button>
+            )}
             <Button
               onClick={() => {
                 router.push(`/dashboard/investor`);
