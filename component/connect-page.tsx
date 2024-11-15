@@ -1,5 +1,6 @@
 import ConnectButton from "@/common/connect-button";
-import { Flex, Title } from "@/styled-antd";
+import { Flex } from "@/styled-antd";
+import TitleTemplate from "./title-tempplate/title-template";
 
 const ConnectPage = () => {
   return (
@@ -13,37 +14,7 @@ const ConnectPage = () => {
       }}
       justify="center"
     >
-      <Title
-        style={{
-          fontSize: "80px",
-          textAlign: "center",
-          textShadow: "0px 0px 10px rgba(255, 255, 255, 0.5)",
-        }}
-      >
-        JOIN STINGRAYLABS
-      </Title>
-      <Title
-        style={{
-          textAlign: "center",
-          fontSize: "80px",
-          color: "transparent !important",
-          WebkitTextStroke: "1px white",
-          opacity: 0.2,
-        }}
-      >
-        JOIN STINGRAYLABS
-      </Title>
-      <Title
-        style={{
-          textAlign: "center",
-          fontSize: "80px",
-          color: "transparent !important",
-          WebkitTextStroke: "1px white",
-          opacity: 0.05,
-        }}
-      >
-        JOIN STINGRAYLABS
-      </Title>
+      <TitleTemplate title="JOIN STINGRAYLABS" />
       <Flex
         style={{
           position: "absolute",

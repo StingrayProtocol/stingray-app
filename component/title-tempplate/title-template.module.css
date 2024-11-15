@@ -1,0 +1,7 @@
+.titleTemplate {
+  text-align: center !important;
+  font-size: 80px !important;
+  color: rgba(0, 0, 0, 0) !important;
+  -webkit-text-stroke: 1px white !important;
+  font-family: "Kusanagi";
+}

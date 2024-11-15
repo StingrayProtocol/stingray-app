@@ -1,6 +1,6 @@
 import { fetchWithRetry } from ".";
 
-const aggregators = [
+export const aggregators = [
   "https://aggregator.walrus-testnet.walrus.space",
   "https://wal-aggregator-testnet.staketab.org",
   "https://walrus-testnet-aggregator.bartestnet.com",
@@ -17,7 +17,7 @@ const aggregators = [
   "https://walrus-testnet-aggregator.starduststaking.com:11444",
 ];
 
-const publishs = [
+export const publishs = [
   "https://wal-publisher-testnet.staketab.org",
   "https://walrus-testnet-publisher.bartestnet.com",
   "https://walrus-testnet-publisher.nodes.guru",

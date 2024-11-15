@@ -60,12 +60,20 @@ const Step4 = ({
   );
 
   const handleChange: UploadProps["onChange"] = (info) => {
+    if (!suiNS) return;
     const fileList = info.fileList;
     getBase64(
       fileList?.[fileList.length - 1].originFileObj as FileType,
       async (url) => {
         setLoading(false);
         setImageUrl(url);
+        setCanvasBlob(
+          await createCard({
+            imageUrl: url,
+            name: suiNS.name,
+            intro,
+          })
+        );
       }
     );
   };

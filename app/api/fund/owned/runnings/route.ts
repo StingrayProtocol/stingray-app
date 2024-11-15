@@ -23,11 +23,8 @@ export async function GET(req: Request) {
         fund_history: true,
         trader_operation: true,
       },
-    })) ?? undefined;
-  console.log(
-    funds,
-    "owned runnings!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  );
+    })) ?? [];
+
   return Response.json(
     funds?.filter(
       (fund) =>

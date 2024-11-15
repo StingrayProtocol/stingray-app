@@ -43,7 +43,6 @@ export async function GET(req: Request) {
       }
       return acc;
     }, 0) ?? 0;
-  console.log(swapReceived, "swapReceived");
 
   return Response.json({
     sui: getDisplayValue(

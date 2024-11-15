@@ -26,6 +26,7 @@ const ConnectButton = () => {
     if (accounts.length === 0) {
       disconnect();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectionStatus, accounts]);
   return (
     <>
@@ -51,7 +52,7 @@ const ConnectButton = () => {
                 fontSize: "24px",
                 border: "1px solid rgba(255, 255, 255, 0.5)",
                 padding: "20px",
-                backgroundColor: "rgba(105, 0, 200, 1)",
+                backgroundColor: "rgba(65, 0, 150, 1)",
                 alignSelf: "center",
               }}
             >

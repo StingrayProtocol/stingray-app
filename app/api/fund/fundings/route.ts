@@ -15,7 +15,6 @@ export async function GET() {
         trader_operation: true,
       },
     })) ?? [];
-  console.log(funds, "fundings!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   return Response.json(
     funds?.filter(
       (fund) =>

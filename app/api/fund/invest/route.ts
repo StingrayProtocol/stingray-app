@@ -43,7 +43,6 @@ export async function GET(req: Request) {
       },
     }),
   ]);
-  console.log(fundings, "invest!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   return Response.json({
     fundings:
       fundings?.filter(

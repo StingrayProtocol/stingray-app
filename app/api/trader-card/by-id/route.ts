@@ -7,7 +7,6 @@ export async function GET(req: Request) {
   if (!objectId) {
     return Response.error();
   }
-  console.log(objectId);
   const funds =
     (await prisma.trader_card.findFirst({
       where: {
