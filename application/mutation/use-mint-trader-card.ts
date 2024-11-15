@@ -33,7 +33,7 @@ const useMintTraderCard = (options?: UseMintTraderCardProps) => {
       imageUrl,
       canvasBlob,
     }: {
-      suiNS: string;
+      suiNS?: string;
       intro: string;
       imageUrl: string;
       canvasBlob: Blob;
@@ -42,6 +42,10 @@ const useMintTraderCard = (options?: UseMintTraderCardProps) => {
         throw new Error("Account not found");
       }
       console.log(suiNS);
+
+      if (!suiNS) {
+        throw new Error("SuiNS not found");
+      }
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
         !process.env.NEXT_PUBLIC_HOST_CONTROLLER ||

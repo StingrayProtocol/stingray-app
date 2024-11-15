@@ -9,7 +9,7 @@ const Step2 = ({
   onConfirm,
 }: {
   step: number;
-  onConfirm: (value: { suiNS: string }) => void;
+  onConfirm: (value: { id: string; name: string; image_url: string }) => void;
 }) => {
   const { data: suiNS } = useGetOwnedSuiNS();
   // const suiNS = {
@@ -44,7 +44,13 @@ const Step2 = ({
           width: "100%",
         }}
         onFinish={(value) => {
-          onConfirm(value as { suiNS: string });
+          onConfirm(
+            value as {
+              id: string;
+              name: string;
+              image_url: string;
+            }
+          );
         }}
       >
         <Flex

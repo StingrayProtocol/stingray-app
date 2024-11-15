@@ -12,9 +12,10 @@ export const createCard = ({
   return new Promise<Blob>(async (resolve, reject) => {
     const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
     const ctx = canvas?.getContext("2d");
+
     if (ctx) {
       // Draw the text
-      ctx.fillText(name, 150, 300);
+      ctx.fillText(name ?? "", 150, 300);
 
       const image = new Image();
       image.crossOrigin = "anonymous";

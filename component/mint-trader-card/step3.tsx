@@ -1,6 +1,6 @@
 import { getAnimationStyle } from "@/common/animation-style";
 import MainButton from "@/common/main-button";
-import { Button, Flex, Form, Input, Text, Title } from "@/styled-antd";
+import { Flex, Form, Input, Text } from "@/styled-antd";
 import { LockOutlined } from "@ant-design/icons";
 import { useEffect } from "react";
 
@@ -10,13 +10,17 @@ const Step3 = ({
   onConfirm,
 }: {
   step: number;
-  suiNS: string;
+  suiNS?: {
+    id: string;
+    name: string;
+    image_url: string;
+  };
   onConfirm: (value: { intro: string }) => void;
 }) => {
   console.log(suiNS);
   const [form] = Form.useForm();
   useEffect(() => {
-    form.setFieldValue("suiNS", suiNS);
+    form.setFieldValue("suiNS", suiNS?.name);
   }, [form, suiNS]);
   return (
     <Flex

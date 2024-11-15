@@ -16,7 +16,11 @@ const Step4 = ({
   intro,
 }: {
   step: number;
-  suiNS: string;
+  suiNS?: {
+    id: string;
+    name: string;
+    image_url: string;
+  };
   intro: string;
 }) => {
   const [form] = Form.useForm();
@@ -69,7 +73,7 @@ const Step4 = ({
         setCanvasBlob(
           await createCard({
             imageUrl: url,
-            name: suiNS,
+            name: suiNS?.name ?? "",
             intro,
           })
         );
@@ -83,7 +87,7 @@ const Step4 = ({
       setCanvasBlob(
         await createCard({
           imageUrl: tempAvatar.src,
-          name: suiNS,
+          name: suiNS.name,
           intro,
         })
       );
@@ -109,7 +113,7 @@ const Step4 = ({
         onFinish={async () => {
           if (!canvasBlob) return;
           mint({
-            suiNS,
+            suiNS: suiNS?.id ?? "",
             intro,
             imageUrl: imageUrl || tempAvatar.src,
             canvasBlob,

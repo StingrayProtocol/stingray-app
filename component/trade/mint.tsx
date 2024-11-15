@@ -10,7 +10,11 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const MintPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [suiNS, setSuiNS] = useState("");
+  const [suiNS, setSuiNS] = useState<{
+    id: string;
+    name: string;
+    image_url: string;
+  }>();
   const [intro, setIntro] = useState("");
   const account = useCurrentAccount();
   useEffect(() => {
@@ -85,8 +89,12 @@ const MintPage = () => {
         />
         <Step2
           step={currentStep}
-          onConfirm={({ suiNS }) => {
-            setSuiNS(suiNS);
+          onConfirm={({ id, name, image_url }) => {
+            setSuiNS({
+              id,
+              name,
+              image_url,
+            });
             console.log(suiNS);
             setCurrentStep(currentStep + 1);
           }}
