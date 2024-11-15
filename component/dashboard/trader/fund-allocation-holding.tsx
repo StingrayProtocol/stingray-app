@@ -128,7 +128,9 @@ const FundAllocationHolding = ({ fund }: { fund?: Fund }) => {
               Number(positionValue?.farming ?? 0) +
               Number(positionValue?.sui ?? 0) -
               (Number(total) ?? 0)
-            ).toFixed(9)}
+            )
+              .toFixed(9)
+              .replace(/\.?0+$/, "")}{" "}
             SUI
           </DataDescription>
         </Flex>
@@ -234,7 +236,7 @@ const FundAllocationHolding = ({ fund }: { fund?: Fund }) => {
             >
               Swap
             </Text>
-            {swapPositions?.map((balance, index) => (
+            {swapPositions?.map((balance) => (
               <TokenPosition
                 key={balance.name}
                 value={Number(balance?.value)

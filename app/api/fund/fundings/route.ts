@@ -14,10 +14,16 @@ export async function GET() {
       },
     })) ?? [];
   console.log(funds, "fundings!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  return Response.json(
-    funds?.filter(
-      (fund) =>
-        Number(fund.start_time) + Number(fund.invest_duration) >= Date.now()
-    )
-  );
+  // return Response.json(
+  //   funds?.filter(
+  //     (fund) =>
+  //       Number(fund.start_time) + Number(fund.invest_duration) >= Date.now()
+  //   )
+  // );
+  return Response.json([
+    {
+      id: 1,
+      owner_id: "",
+    },
+  ]);
 }
