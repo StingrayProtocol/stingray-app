@@ -75,8 +75,8 @@ const Step2 = ({
                 vertical
               >
                 <Text>
-                  You don't have any SuiNS yet. Please go to suins.io to get
-                  one.
+                  You don&apos;t have any SuiNS yet. Please go to suins.io to
+                  get one.
                 </Text>
                 <Button type="primary" href="https://suins.io/">
                   Get Sui Name Service

@@ -61,7 +61,6 @@ const useMintTraderCard = (options?: UseMintTraderCardProps) => {
         postWalrusApi(blob),
         postWalrusApi(canvasBlob),
       ]);
-      // const suiNSs = await getOwnedSuiNS({ owner: account?.address });
       const tx = new Transaction();
       message.loading("Confirm transaction in your wallet");
 
@@ -72,7 +71,7 @@ const useMintTraderCard = (options?: UseMintTraderCardProps) => {
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG),
           tx.object(process.env.NEXT_PUBLIC_HOST_CONTROLLER),
-          // tx.object(suiNS), //sui ns
+          tx.object(suiNS), //sui ns
           tx.pure.string(pfp),
           tx.pure.string(traderCard),
           tx.pure.string(intro),

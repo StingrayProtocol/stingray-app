@@ -33,7 +33,7 @@ const MintPage = () => {
     },
     {
       title: "Step 4",
-      description: "Mint with 10 SUI",
+      description: "Mint with 1 SUI",
     },
   ];
   return (
