@@ -41,6 +41,7 @@ const useMintTraderCard = (options?: UseMintTraderCardProps) => {
       if (!account) {
         throw new Error("Account not found");
       }
+      console.log(suiNS);
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
         !process.env.NEXT_PUBLIC_HOST_CONTROLLER ||

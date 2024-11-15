@@ -5,6 +5,7 @@ type UseGetOwnedSuiNSProps = Omit<
   UseQueryOptions<
     {
       lists: {
+        id: string;
         name: string;
         image_url: string;
       }[];
@@ -14,6 +15,7 @@ type UseGetOwnedSuiNSProps = Omit<
     Error,
     {
       lists: {
+        id: string;
         name: string;
         image_url: string;
       }[];
@@ -50,6 +52,7 @@ const useGetOwnedSuiNS = (options?: UseGetOwnedSuiNSProps) => {
       });
       return {
         lists: result.data.map((item) => ({
+          id: item.data?.objectId || "",
           name: item.data?.display?.data?.name || "",
           image_url: item.data?.display?.data?.image_url || "",
         })),

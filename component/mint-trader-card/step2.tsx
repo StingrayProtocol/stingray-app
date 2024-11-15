@@ -115,7 +115,7 @@ const Step2 = ({
                             right: "0px",
                             top: "5px",
                           }}
-                          value={item.name}
+                          value={item.id}
                         />
                         <Image preview={false} alt="" src={item.image_url} />
                       </Flex>
