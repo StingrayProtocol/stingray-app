@@ -40,6 +40,7 @@ const MintPage = () => {
       description: "Mint with 1 SUI",
     },
   ];
+  console.log(suiNS);
   return (
     <Flex
       style={{

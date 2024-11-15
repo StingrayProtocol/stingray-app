@@ -80,7 +80,7 @@ const useMintTraderCard = (options?: UseMintTraderCardProps) => {
           tx.pure.string(pfp),
           tx.pure.string(traderCard),
           tx.pure.string(intro),
-          tx.splitCoins(tx.gas, [10000000]),
+          tx.splitCoins(tx.gas, [Math.pow(10, 9)]),
           tx.object("0x6"),
         ],
       });

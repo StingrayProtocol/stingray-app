@@ -43,14 +43,18 @@ const Step2 = ({
         style={{
           width: "100%",
         }}
-        onFinish={(value) => {
-          onConfirm(
-            value as {
-              id: string;
-              name: string;
-              image_url: string;
-            }
-          );
+        onFinish={(v) => {
+          const value = v as {
+            suiNS: string;
+          };
+
+          const data = suiNS?.lists?.find((item) => item.id === value.suiNS);
+
+          onConfirm({
+            id: value.suiNS,
+            name: data?.name || "",
+            image_url: data?.image_url || "",
+          });
         }}
       >
         <Flex
