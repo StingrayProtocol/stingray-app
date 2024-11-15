@@ -3,6 +3,7 @@ import { coins } from "@/constant/coin";
 import { prisma } from "@/prisma";
 import { Farming } from "@/type";
 
+export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const fundId = url.searchParams.get("fundId");
