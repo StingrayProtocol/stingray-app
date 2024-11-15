@@ -8,6 +8,7 @@ import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { message } from "antd";
 import useGetOwnedFund from "../query/use-get-owned-fund";
 import { syncDb } from "@/common/sync-db";
+import tempImage from "@/public/Stingray-Color.png";
 
 type UseCreateFundProps = UseMutationOptions<
   void,
@@ -18,7 +19,7 @@ type UseCreateFundProps = UseMutationOptions<
     description?: string;
     traderFee: number;
     limit: number;
-    imageUrl: string;
+    imageUrl?: string;
     amount: number;
     startTime: number;
     endTime: number;
@@ -42,7 +43,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
       description = "",
       traderFee = 20,
       limit = 1,
-      imageUrl,
+      imageUrl = tempImage.src,
       amount = 0.01,
       startTime,
       endTime,
@@ -54,7 +55,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
       description: string;
       traderFee: number;
       limit: number;
-      imageUrl: string;
+      imageUrl?: string;
       amount: number;
       startTime: number;
       endTime: number;

@@ -136,10 +136,10 @@ const CreateFund = () => {
           width: "100%",
         }}
         onFinish={(d) => {
-          if (!imageUrl) {
-            message.error("Please upload avatar");
-            return;
-          }
+          // if (!imageUrl) {
+          //   message.error("Please upload avatar");
+          //   return;
+          // }
           if (!traderCard?.owner_address) {
             message.error("Please create a trader card first");
             return;

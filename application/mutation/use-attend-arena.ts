@@ -8,6 +8,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { message } from "antd";
 import useGetAllFund from "../query/use-get-all-fund";
+import tempImage from "@/public/Stingray-Color.png";
 
 type UseAttendArenaProps = UseMutationOptions<
   void,
@@ -19,7 +20,7 @@ type UseAttendArenaProps = UseMutationOptions<
     description?: string;
     traderFee: number;
     limit: number;
-    imageUrl: string;
+    imageUrl?: string;
     amount: number;
     startTime: number;
     endTime: number;
@@ -44,7 +45,7 @@ const useAttendArena = (options?: UseAttendArenaProps) => {
       description = "",
       traderFee = 20,
       limit = 1,
-      imageUrl,
+      imageUrl = tempImage.src,
       amount = 0.01,
       startTime,
       endTime,
@@ -57,7 +58,7 @@ const useAttendArena = (options?: UseAttendArenaProps) => {
       description: string;
       traderFee: number;
       limit: number;
-      imageUrl: string;
+      imageUrl?: string;
       amount: number;
       startTime: number;
       endTime: number;
