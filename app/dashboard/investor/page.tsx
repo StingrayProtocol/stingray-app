@@ -3,7 +3,7 @@ import MainButton from "@/common/main-button";
 import FundOverview from "@/component/dashboard/investor/fund-overview";
 import FundPanel from "@/component/dashboard/investor/fund-panel";
 import TitleTemplate from "@/component/title-tempplate/title-template";
-import { Button, Flex } from "@/styled-antd";
+import { Flex } from "@/styled-antd";
 import { useRouter } from "next/navigation";
 import React from "react";
 

@@ -4,7 +4,7 @@ import MainButton from "@/common/main-button";
 import FundAllocationHolding from "@/component/dashboard/trader/fund-allocation-holding";
 import FundStatus from "@/component/dashboard/trader/fund-status";
 import TitleTemplate from "@/component/title-tempplate/title-template";
-import { Button, Flex, Select } from "@/styled-antd";
+import { Flex, Select } from "@/styled-antd";
 import { Fund } from "@/type";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
