@@ -181,9 +181,12 @@ const useAttendArena = (options?: UseAttendArenaProps) => {
       console.error(error);
     },
     ...options,
-    onSuccess: async () => {
+    onSuccess: async (data, variable, context) => {
       await syncDb.fund();
-      refetch();
+      await syncDb.fundHistory();
+      await refetch();
+      message.success("Congratulations! You have successfully created a fund!");
+      options?.onSuccess?.(data, variable, context);
     },
   });
 };

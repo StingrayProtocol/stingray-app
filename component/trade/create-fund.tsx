@@ -69,7 +69,12 @@ const CreateFund = () => {
     },
   });
 
-  const { mutate: attendArena, isPending: isAttendingArena } = useAttendArena();
+  const { mutate: attendArena, isPending: isAttendingArena } = useAttendArena({
+    onSuccess: () => {
+      form.resetFields();
+      push("/dashboard/investor");
+    },
+  });
 
   const UploadButton = (
     <Flex

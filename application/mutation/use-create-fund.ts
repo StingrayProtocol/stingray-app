@@ -146,6 +146,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
     ...options,
     onSuccess: async (data, variable, context) => {
       await syncDb.fund();
+      await syncDb.fundHistory();
       await refetch();
       message.success("Congratulations! You have successfully created a fund!");
       options?.onSuccess?.(data, variable, context);

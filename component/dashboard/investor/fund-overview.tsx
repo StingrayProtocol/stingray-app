@@ -33,6 +33,20 @@ const FundOverview = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account?.address, funds]);
 
+  const totalInvestFunds = useMemo(() => {
+    return allFunds.reduce((acc, fund) => {
+      const hasPosition = fund.fund_history.some(
+        (history) => history.investor === account?.address
+      );
+      if (hasPosition) {
+        return acc + 1;
+      } else {
+        return acc;
+      }
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [funds, account?.address]);
+
   const shortestAgreement = useMemo(() => {
     return Math.min(
       ...allFunds
@@ -83,7 +97,7 @@ const FundOverview = () => {
             alt="Stingray"
             src={stingray.src}
           />
-          <DataDescription>{allFunds.length}</DataDescription>
+          <DataDescription>{totalInvestFunds}</DataDescription>
         </Flex>
       ),
     },
