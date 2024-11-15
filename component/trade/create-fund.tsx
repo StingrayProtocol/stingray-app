@@ -20,7 +20,7 @@ import useGetOwnedTraderCard from "@/application/query/use-get-owned-trader-card
 import useAttendArena from "@/application/mutation/use-attend-arena";
 import useGetCurrentArena from "@/application/query/use-get-current-arena";
 import { toLocalISOString, typeToTimestampms } from "@/common";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const CreateFund = () => {
   const { data: traderCard } = useGetOwnedTraderCard();
