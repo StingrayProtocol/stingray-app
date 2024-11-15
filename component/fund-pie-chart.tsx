@@ -21,7 +21,7 @@ const FundPieChart = ({ fund }: { fund?: Fund }) => {
       ? selfFundHistory?.reduce((acc, cur) => acc + Number(cur.amount), 0)
       : 0;
     const limit = fund?.limit_amount;
-    const totalPercent = total && limit ? (total / limit) * 100 : 0;
+    const totalPercent = total && limit ? (total / Number(limit)) * 100 : 0;
     const remainingPercent = 100 - totalPercent;
 
     const chartData = [

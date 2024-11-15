@@ -17,6 +17,7 @@ model trader_card {
   event_seq     String
   tx_digest     String
   timestamp     String
+  fund          fund[]
 }
 
 model arena {
@@ -42,6 +43,7 @@ model fund {
   arena            arena?             @relation(fields: [arena_object_id], references: [object_id])
   arena_object_id  String?
   owner_id         String
+  owner            trader_card        @relation(fields: [owner_id], references: [object_id])
   fund_history     fund_history[]
   trader_operation trader_operation[]
   trader_fee       String

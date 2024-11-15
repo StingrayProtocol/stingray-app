@@ -1,15 +1,14 @@
 import useGetTraderCard from "@/application/query/use-get-trader-card";
-import { formatAddress, formatSuiPrice, getRelativeTime } from "@/common";
+import { formatSuiPrice, getRelativeTime } from "@/common";
 import TraderInfo from "@/common/trader-info";
 import FundCard from "@/component/fund-card";
 import FundPieChart from "@/component/fund-pie-chart";
 import { coins } from "@/constant/coin";
-import { Flex, Progress, Text, Title, Tooltip } from "@/styled-antd";
+import { Flex, Text, Title, Tooltip } from "@/styled-antd";
 import { Fund } from "@/type";
 import { DollarOutlined } from "@ant-design/icons";
 import FundHistory from "./fund-history";
-import useGetFundBalance from "@/application/query/use-get-fund-balance";
-import useGetPositionValue from "@/application/query/use-get-position-value";
+import useGetPositionValue from "@/application/query/use-get-position-value_";
 
 const Running = ({ fund }: { fund?: Fund }) => {
   const { data: traderCard } = useGetTraderCard({
@@ -20,14 +19,10 @@ const Running = ({ fund }: { fund?: Fund }) => {
     0
   );
 
-  const { data: balances } = useGetFundBalance({
-    fundId: fund?.object_id,
-  });
-
   const fundStatuses = [
     {
       label: "Target Funded Amount",
-      value: formatSuiPrice(fund?.limit_amount ?? 0),
+      value: formatSuiPrice(Number(fund?.limit_amount) ?? 0),
     },
     {
       label: "Current Funded Amount",
@@ -47,7 +42,7 @@ const Running = ({ fund }: { fund?: Fund }) => {
   ];
 
   const { data: positionValue } = useGetPositionValue({
-    fund,
+    fundId: fund?.object_id,
   });
 
   const positions = [

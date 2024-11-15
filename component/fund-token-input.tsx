@@ -1,11 +1,51 @@
 import useGetBalance from "@/application/use-get-balance";
 import { formatPrice } from "@/common";
 import { Flex, Input, Text } from "@/styled-antd";
+import { Skeleton } from "antd";
 import { useState } from "react";
 
-const FundTokenInput = () => {
+const FundTokenInput = ({
+  total,
+  action,
+}: {
+  total: number;
+  action: "add" | "remove";
+}) => {
   const [amount, setAmount] = useState<string>(); //
   const balance = useGetBalance();
+  const isLoading = isNaN(Number(balance));
+
+  const Current = () => {
+    return (
+      <Text
+        style={{
+          fontSize: "12px",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Current In Fund: {total.toFixed(9).replace(/\.?0+$/, "")} SUI
+      </Text>
+    );
+  };
+
+  const Balance = () => {
+    return (
+      <>
+        {isLoading && <Skeleton.Input active />}
+        {!isLoading && (
+          <Text
+            style={{
+              fontSize: "12px",
+              color: "rgba(255, 255, 255, 1)",
+              paddingLeft: 12,
+            }}
+          >
+            Balance: {formatPrice(Number(balance))}
+          </Text>
+        )}
+      </>
+    );
+  };
   return (
     <Flex
       gap="middle"
@@ -35,7 +75,9 @@ const FundTokenInput = () => {
               cursor: "pointer",
             }}
             onClick={() => {
-              setAmount(balance.toString());
+              setAmount(
+                action === "add" ? balance.toString() : total.toString()
+              );
             }}
           >
             MAX
@@ -57,22 +99,17 @@ const FundTokenInput = () => {
             }}
             placeholder="0.0"
           />
-          <Text
-            style={{
-              fontSize: "12px",
-              color: "rgba(255, 255, 255, 1)",
-              paddingLeft: 12,
-            }}
-          >
-            Balance: {formatPrice(Number(balance))}
-          </Text>
+          {action === "add" ? <Balance /> : <Current />}
         </Flex>
 
         <Flex
-          align="center"
+          vertical
           style={{
-            alignSelf: "center",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+            alignSelf: "flex-end",
           }}
+          gap="4px"
         >
           <Text
             style={{
@@ -82,6 +119,7 @@ const FundTokenInput = () => {
           >
             SUI
           </Text>
+          {action === "add" ? <Current /> : <Balance />}
         </Flex>
       </Flex>
     </Flex>

@@ -143,7 +143,26 @@ export const Progress = styled(AntdProgress)``;
 
 export const Tabs = styled(AntdTabs)``;
 
-export const Table = styled(AntdTable)``;
+export const Table = styled(AntdTable)`
+  .ant-table td,
+  .ant-table th {
+    border: none !important;
+  }
+  .ant-table-footer {
+    display: none !important;
+  }
+
+  /* Ensure that the table container allows for visible rounded corners */
+  .ant-table-container {
+    overflow: hidden;
+  }
+  .ant-table {
+    background: transparent;
+  }
+  .ant-table-container {
+    border: none !important;
+  }
+`;
 
 // colors: {
 //   neutral: {

@@ -1,5 +1,4 @@
 import useGetFundBalance from "@/application/query/use-get-fund-balance";
-import useGetPositionValue from "@/application/query/use-get-position-value";
 import { formatPrice } from "@/common";
 import { Flex, Text, Title } from "@/styled-antd";
 import { Fund } from "@/type";
@@ -17,9 +16,7 @@ const FundAllocationFarming = ({ fund }: { fund?: Fund }) => {
   const { data: balances } = useGetFundBalance({
     fundId: fund?.object_id,
   });
-  const { data: positionValue } = useGetPositionValue({
-    fund,
-  });
+
   const data = [
     {
       name: "Token Fund in Farming:",

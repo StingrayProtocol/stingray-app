@@ -7,13 +7,14 @@ import { Transaction } from "@mysten/sui/transactions";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { message } from "antd";
 import useRefetchWholeFund from "./use-refetch-whole-fund";
+import { Fund } from "@/type";
 
 type UseAddFundProps = UseMutationOptions<
   void,
   Error,
   {
     amount: number;
-    fundId: string;
+    fund?: Fund;
   }
 >;
 
@@ -29,11 +30,19 @@ const useRemoveFund = (options?: UseAddFundProps) => {
   return useMutation({
     mutationFn: async ({
       amount = 0.01,
-      fundId,
+      fund,
     }: {
       amount: number;
-      fundId: string;
+      fund: Fund;
     }) => {
+      const shares =
+        fund.fund_history
+          ?.filter((history) => !history?.redeemed)
+          .map((history) => history.share_id) || [];
+      if (!shares.length) {
+        throw new Error("Share not found");
+      }
+
       if (!account) {
         throw new Error("Account not found");
       }
@@ -45,31 +54,22 @@ const useRemoveFund = (options?: UseAddFundProps) => {
       }
 
       const tx = new Transaction();
-
-      const mintRequest = tx.moveCall({
+      console.log(amount * 10 ** 9);
+      const share = tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
         function: "deinvest",
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
-          tx.object(fundId), //fund id
-          tx.splitCoins(tx.gas, [amount * 10 ** 9]), // coin // temporary sui only
+          tx.object(fund.object_id), //fund id
+          tx.makeMoveVec({
+            elements: shares.map((share) => tx.object(share)),
+          }), //shares
+          tx.pure.u64(amount * 10 ** 9), //amount
           tx.object("0x6"),
         ],
         typeArguments: ["0x2::sui::SUI"],
       }); //fund
-
-      // mint share
-      const share = tx.moveCall({
-        package: process.env.NEXT_PUBLIC_PACKAGE,
-        module: "fund_share",
-        function: "mint",
-        arguments: [
-          tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
-          mintRequest, //mint request
-        ],
-        typeArguments: ["0x2::sui::SUI"],
-      });
 
       tx.transferObjects([share], account.address);
       const result = await signAndExecuteTransaction({
@@ -85,7 +85,7 @@ const useRemoveFund = (options?: UseAddFundProps) => {
       options?.onSuccess?.(_data, _variables, _context);
       await syncDb.fundHistory();
       refetch();
-      message.success("Fund added successfully");
+      message.success("Fund removed successfully");
     },
   });
 };

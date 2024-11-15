@@ -8,7 +8,7 @@ import { PRICE_FEE } from "@/constant/price";
 //Pyth Settings
 const connection = new HermesClient("https://hermes.pyth.network", {});
 
-const pythPriceEstimate = async (cryptoPriceFee: string) => {
+export const pythPriceEstimate = async (cryptoPriceFee: string) => {
   const priceUpdates = await connection.getLatestPriceUpdates([cryptoPriceFee]);
 
   if (priceUpdates["parsed"] && priceUpdates["parsed"].length > 0) {

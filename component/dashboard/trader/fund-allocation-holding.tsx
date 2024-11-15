@@ -1,5 +1,5 @@
 import useGetFundBalance from "@/application/query/use-get-fund-balance";
-import useGetPositionValue from "@/application/query/use-get-position-value";
+import useGetPositionValue from "@/application/query/use-get-position-value_";
 import { coins } from "@/constant/coin";
 import { Flex, Image, Text, Title } from "@/styled-antd";
 import { Fund } from "@/type";
@@ -65,7 +65,7 @@ const FundAllocationHolding = ({ fund }: { fund?: Fund }) => {
     fundId: fund?.object_id,
   });
   const { data: positionValue } = useGetPositionValue({
-    fund,
+    fundId: fund?.object_id,
   });
 
   const total = (

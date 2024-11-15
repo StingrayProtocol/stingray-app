@@ -14,7 +14,13 @@ import { ConfigProvider, theme } from "antd";
 const network =
   process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? "mainnet" : "testnet";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 const { networkConfig } = createNetworkConfig({
   testnet: { url: getFullnodeUrl("testnet") },
   mainnet: { url: "https://mainnet.sui.rpcpool.com" },
@@ -101,6 +107,15 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
                     colorBgBase: "#2a0067",
                     colorBgContainer: "#2a0067",
                     colorPrimary: "white",
+                  },
+                  Table: {
+                    borderColor: "rgba(255, 255, 255, 0.5)",
+                    cellFontSize: 20,
+                    cellPaddingBlock: 20,
+                    headerBg: "rgba(85, 0, 155, 0.5)",
+                    headerBorderRadius: 40,
+                    footerBg: "rgba(90, 0, 175, 0.6)",
+                    borderRadius: 40,
                   },
                 },
                 algorithm: theme.darkAlgorithm,

@@ -18,6 +18,7 @@ export type FundHistory = {
   fund: Fund;
   fund_object_id: string;
   amount: string;
+  redeemed: boolean;
   investor: string;
   event_seq: string;
   tx_digest: string;
@@ -26,22 +27,21 @@ export type FundHistory = {
 
 export type Fund = {
   object_id: string;
-  owner_id: string;
-  amount: number;
+  name: string;
+  description: string;
   start_time: string;
   end_time: string;
   invest_duration: string;
-  trader: string;
-  trader_fee: number;
-  name: string;
-  description: string;
   image_blob_id: string;
-  arena_object_id?: string;
-  limit_amount: number;
-  expected_roi: number;
-  arena?: Arena;
+  arena: Arena;
+  arena_object_id: string;
+  owner_id: string;
+  owner: TraderCard;
   fund_history: FundHistory[];
   trader_operation: TraderOperation[];
+  trader_fee: string;
+  limit_amount: string;
+  expected_roi: string;
   event_seq: string;
   tx_digest: string;
   timestamp: string;
@@ -104,3 +104,16 @@ export type FundBalance = {
   decimal: number;
   farmings: Farming[];
 }[];
+
+export type PositionValue = {
+  sui: number;
+  trading: number;
+  farming: number;
+  total: number;
+  percent: {
+    sui: number;
+    trading: number;
+    farming: number;
+  };
+  balances: FundBalance;
+};

@@ -184,8 +184,8 @@ const useBucketWithdraw = (options?: UseBucketWithdrawProps) => {
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
       message.success("Deposit success");
-      refetchBalance();
       refetch();
+      refetchBalance();
     },
   });
 };

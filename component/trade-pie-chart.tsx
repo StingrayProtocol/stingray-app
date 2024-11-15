@@ -3,13 +3,13 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useEffect, useMemo } from "react";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import useGetPositionValue from "@/application/query/use-get-position-value";
+import useGetPositionValue from "@/application/query/use-get-position-value_";
 
 const TradePieChart = ({ fund }: { fund?: Fund }) => {
   const account = useCurrentAccount();
   const randomId = useMemo(() => Math.random().toString(36).substring(7), []);
   const { data: positionValue } = useGetPositionValue({
-    fund,
+    fundId: fund?.object_id,
   });
   useEffect(() => {
     if (!fund || !account || !positionValue) return;

@@ -12,6 +12,7 @@ export async function GET() {
       include: {
         fund_history: true,
         arena: true,
+        owner: true,
       },
     })) ?? [];
 

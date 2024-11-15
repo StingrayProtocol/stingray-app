@@ -387,6 +387,8 @@ const useCetusSwap = (options?: UseCetusSwapProps) => {
         transaction: tx,
       });
       console.log(result);
+      await syncDb.swap();
+
       return;
     },
     onError: (error) => {
@@ -396,9 +398,8 @@ const useCetusSwap = (options?: UseCetusSwapProps) => {
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
       message.success("Swap success");
-      await syncDb.swap();
-      refetchBalance();
       refetch();
+      refetchBalance();
     },
   });
 };

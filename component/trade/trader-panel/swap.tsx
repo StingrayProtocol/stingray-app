@@ -5,7 +5,7 @@ import cetus from "@/public/partner-cetus.png";
 import MainButton from "@/common/main-button";
 import useCetusSwap from "@/application/mutation/use-cetus-swap";
 import { CETUS_SWAP } from "@/constant/defi-data/cetus";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useGetOwnedTraderCard from "@/application/query/use-get-owned-trader-card";
 import { FundBalance } from "@/type";
 import { coins } from "@/constant/coin";

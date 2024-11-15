@@ -1,15 +1,10 @@
 import { Flex, Text, Title } from "@/styled-antd";
 import { CalendarOutlined, DollarCircleOutlined } from "@ant-design/icons";
-import {
-  formatPrice,
-  formatSuiPrice,
-  getDHMS,
-  getFuturePeriod,
-} from "@/common";
+import { formatSuiPrice, getDHMS } from "@/common";
 import TradePieChart from "@/component/trade-pie-chart";
 import { Fund } from "@/type";
-import useGetPositionValue from "@/application/query/use-get-position-value";
 import CountDown from "@/component/count-down";
+import useGetPositionValue from "@/application/query/use-get-position-value_";
 
 const DataTitle = ({ children }: { children: React.ReactNode }) => (
   <Text style={{ fontSize: "12px" }}>{children}</Text>
@@ -26,7 +21,7 @@ const FundStatus = ({ fund }: { fund?: Fund }) => {
   );
 
   const { data: positionValue } = useGetPositionValue({
-    fund,
+    fundId: fund?.object_id,
   });
 
   const data = [

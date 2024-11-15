@@ -13,10 +13,12 @@ import {
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useState } from "react";
 import FundHistory from "./fund-history";
+import RemoveFundModal from "@/common/remove-fund-modal";
 
 const Funding = ({ fund }: { fund?: Fund }) => {
   const account = useCurrentAccount();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const notStarted = Number(fund?.start_time) > Date.now();
 
   const total = fund?.fund_history?.reduce(
@@ -26,7 +28,7 @@ const Funding = ({ fund }: { fund?: Fund }) => {
   const fundStatuses = [
     {
       label: "Target Funded Amount",
-      value: formatSuiPrice(fund?.limit_amount ?? 0),
+      value: formatSuiPrice(Number(fund?.limit_amount) ?? 0),
     },
     {
       label: "Current Funded Amount",
@@ -46,7 +48,9 @@ const Funding = ({ fund }: { fund?: Fund }) => {
   ];
 
   const totalPercent =
-    fund?.limit_amount && total ? (total / fund?.limit_amount) * 100 : 0;
+    fund?.limit_amount && total
+      ? (total / Number(fund?.limit_amount)) * 100
+      : 0;
 
   const hasPosition = fund?.fund_history?.find(
     (history) => history?.investor === account?.address
@@ -167,7 +171,7 @@ const Funding = ({ fund }: { fund?: Fund }) => {
                       fontSize: "12px",
                     }}
                   >
-                    {formatSuiPrice(fund?.limit_amount ?? 0)} SUI
+                    {formatSuiPrice(Number(fund?.limit_amount) ?? 0)} SUI
                   </Text>
                 </Flex>
               </Flex>
@@ -274,7 +278,7 @@ const Funding = ({ fund }: { fund?: Fund }) => {
                         border: "1px solid rgba(255, 255, 255, 0.5)",
                       }}
                       onClick={() => {
-                        setIsOpen(true);
+                        setIsAddOpen(true);
                       }}
                     >
                       Add Fund
@@ -306,6 +310,9 @@ const Funding = ({ fund }: { fund?: Fund }) => {
                     left: "10px",
                     padding: "3px",
                   }}
+                  onClick={() => {
+                    setIsRemoveOpen(true);
+                  }}
                 >
                   <MinusCircleFilled
                     style={{
@@ -324,7 +331,7 @@ const Funding = ({ fund }: { fund?: Fund }) => {
                     padding: "3px",
                   }}
                   onClick={() => {
-                    setIsOpen(true);
+                    setIsAddOpen(true);
                   }}
                 >
                   <PlusCircleFilled
@@ -339,10 +346,17 @@ const Funding = ({ fund }: { fund?: Fund }) => {
         </Flex>
       </Flex>
       <AddFundModal
-        fundId={fund?.object_id}
-        isOpen={isOpen}
+        fund={fund}
+        isOpen={isAddOpen}
         onClose={() => {
-          setIsOpen(false);
+          setIsAddOpen(false);
+        }}
+      />
+      <RemoveFundModal
+        fund={fund}
+        isOpen={isRemoveOpen}
+        onClose={() => {
+          setIsRemoveOpen(false);
         }}
       />
     </Flex>

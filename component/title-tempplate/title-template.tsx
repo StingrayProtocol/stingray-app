@@ -6,7 +6,6 @@ const TitleTemplate = ({ title, full }: { title: string; full?: boolean }) => {
   return (
     <Flex
       vertical
-      gap="large"
       style={{
         position: "relative",
         marginLeft: "20px",
@@ -18,7 +17,7 @@ const TitleTemplate = ({ title, full }: { title: string; full?: boolean }) => {
         style={{
           fontSize: "80px",
           textAlign: "center",
-          textShadow: "0px 0px 10px rgba(255, 255, 255, 0.5)",
+          textShadow: "0px 0px 10px rgba(255, 255, 255, 0.2)",
         }}
       >
         {title}
@@ -29,6 +28,7 @@ const TitleTemplate = ({ title, full }: { title: string; full?: boolean }) => {
           style={{
             opacity,
             fontSize: "80px",
+            textShadow: "0px 0px 10px rgba(255, 255, 255, 0.2)",
           }}
           className={style.titleTemplate}
         >

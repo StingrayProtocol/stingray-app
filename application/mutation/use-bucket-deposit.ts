@@ -178,6 +178,7 @@ const useBucketDeposit = (options?: UseBucketDespositProps) => {
         transaction: tx,
       });
       console.log(result);
+      await syncDb.withdraw("Bucket");
       await syncDb.deposit("Bucket");
     },
     onError: (error) => {
@@ -187,8 +188,8 @@ const useBucketDeposit = (options?: UseBucketDespositProps) => {
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
       message.success("Deposit success");
-      refetchBalance();
       refetch();
+      refetchBalance();
     },
   });
 };

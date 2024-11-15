@@ -68,7 +68,8 @@ const FundCard = ({ fund, card = true }: { fund?: Fund; card?: boolean }) => {
         <Flex justify="space-between" align="center">
           <Text>
             Funded
-            {fund?.amount} SUI (100%)
+            {(total / Math.pow(10, 9)).toFixed(9).replace(/\.?0+$/, "")} SUI (
+            {((total / Number(fund?.limit_amount)) * 100).toFixed(2)}%)
           </Text>
           <Flex gap="small">
             <Text>{investCount ?? 1}</Text>

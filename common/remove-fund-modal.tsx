@@ -1,10 +1,10 @@
 import { Flex, Form, Modal, Title } from "@/styled-antd";
 import MainButton from "./main-button";
 import FundTokenInput from "@/component/fund-token-input";
-import useAddFund from "@/application/mutation/use-add-fund";
+import useRemoveFund from "@/application/mutation/use-remove-fund";
 import { Fund } from "@/type";
 
-const AddFundModal = ({
+const RemoveFundModal = ({
   fund,
   isOpen,
   onClose,
@@ -14,7 +14,7 @@ const AddFundModal = ({
   onClose: () => void;
 }) => {
   const [form] = Form.useForm();
-  const { mutate: addFund, isPending } = useAddFund({
+  const { mutate: removeFund, isPending } = useRemoveFund({
     onSuccess: () => {
       form.resetFields();
       onClose();
@@ -31,7 +31,7 @@ const AddFundModal = ({
         centered
         title={
           <Title level={1} style={{ textAlign: "center", fontWeight: "bold" }}>
-            Add Fund
+            Remove Fund
           </Title>
         }
         open={isOpen}
@@ -45,7 +45,7 @@ const AddFundModal = ({
           onFinish={(d) => {
             const data = d as { amount: number };
             if (!fund) return;
-            addFund({ fundId: fund.object_id, amount: data.amount });
+            removeFund({ fund, amount: data.amount });
           }}
         >
           <Form.Item name="amount">
@@ -56,7 +56,7 @@ const AddFundModal = ({
               }}
               align="center"
             >
-              <FundTokenInput total={total} action="add" />
+              <FundTokenInput total={total} action="remove" />
             </Flex>
           </Form.Item>
           <Form.Item name="submit">
@@ -83,4 +83,4 @@ const AddFundModal = ({
   );
 };
 
-export default AddFundModal;
+export default RemoveFundModal;
