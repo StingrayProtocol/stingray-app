@@ -28,6 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <title>Stingray Labs</title>
+        <meta name="description" content="Stingray Labs" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Provider>
           <Frame>{children}</Frame>
