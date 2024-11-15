@@ -115,17 +115,14 @@ const CreateFund = () => {
   );
 
   const handleChange: UploadProps["onChange"] = (info) => {
-    if (info.file.status === "uploading") {
-      setLoading(true);
-      return;
-    }
-    if (info.file.status === "done") {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj as FileType, async (url) => {
+    const fileList = info.fileList;
+    getBase64(
+      fileList?.[fileList.length - 1].originFileObj as FileType,
+      async (url) => {
         setLoading(false);
         setImageUrl(url);
-      });
-    }
+      }
+    );
   };
 
   return (

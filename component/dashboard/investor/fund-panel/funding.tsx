@@ -17,6 +17,7 @@ import FundHistory from "./fund-history";
 const Funding = ({ fund }: { fund?: Fund }) => {
   const account = useCurrentAccount();
   const [isOpen, setIsOpen] = useState(false);
+  const notStarted = Number(fund?.start_time) > Date.now();
 
   const total = fund?.fund_history?.reduce(
     (acc, cur) => acc + Number(cur.amount),
@@ -263,18 +264,22 @@ const Funding = ({ fund }: { fund?: Fund }) => {
                     borderRadius: "50%",
                   }}
                 >
-                  <MainButton
-                    size="middle"
-                    style={{
-                      padding: "8px",
-                      border: "1px solid rgba(255, 255, 255, 0.5)",
-                    }}
-                    onClick={() => {
-                      setIsOpen(true);
-                    }}
-                  >
-                    Add Fund
-                  </MainButton>
+                  {notStarted ? (
+                    <Text>Not Started</Text>
+                  ) : (
+                    <MainButton
+                      size="middle"
+                      style={{
+                        padding: "8px",
+                        border: "1px solid rgba(255, 255, 255, 0.5)",
+                      }}
+                      onClick={() => {
+                        setIsOpen(true);
+                      }}
+                    >
+                      Add Fund
+                    </MainButton>
+                  )}
                 </Flex>
               )}
               {hasPosition && (

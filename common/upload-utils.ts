@@ -4,7 +4,12 @@ export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 export const getBase64 = (img: FileType, callback: (url: string) => void) => {
   const reader = new FileReader();
-  reader.addEventListener("load", () => callback(reader.result as string));
+  console.log(img);
+  reader.addEventListener("load", () => {
+    console.log(reader.result);
+    console.log(reader);
+    callback(reader?.result as string);
+  });
   reader.readAsDataURL(img);
 };
 
@@ -17,5 +22,5 @@ export const beforeUpload = (file: FileType) => {
   if (!isLt2M) {
     message.error("Image must smaller than 2MB!");
   }
-  return isJpgOrPng && isLt2M;
+  return false;
 };
