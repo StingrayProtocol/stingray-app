@@ -1,5 +1,5 @@
 "use client";
-import { Flex, Image } from "@/styled-antd";
+import { Flex, Image, Text } from "@/styled-antd";
 import bgCover from "@/public/stingray_website_bg.png";
 import Header from "./header";
 import useGetOwnedTraderCard from "@/application/query/use-get-owned-trader-card";
@@ -24,6 +24,7 @@ const Frame = ({ children }: { children: React.ReactNode }) => {
   const { connectionStatus } = useCurrentWallet();
   const { mutate: disconnect } = useDisconnectWallet();
   const { isLoading: isGettingOwnFund } = useGetOwnedFund();
+  const [windowWidth, setWindowWidth] = useState<number>();
 
   useEffect(() => {
     setTimeout(() => {
@@ -39,6 +40,16 @@ const Frame = ({ children }: { children: React.ReactNode }) => {
   }, [connectionStatus, accounts]);
 
   const isLoading = isGettingCard || isGettingOwnFund || !onLoad;
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <Flex
       style={{
@@ -93,9 +104,26 @@ const Frame = ({ children }: { children: React.ReactNode }) => {
           top: 0,
           left: 0,
           width: "100vw",
-          zIndex: isLoading ? 10000 : -1,
+          zIndex: isLoading || (windowWidth && windowWidth < 768) ? 10000 : -1,
         }}
       />
+      {windowWidth && windowWidth <= 768 && (
+        <Text
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 10001,
+            color: "white",
+            textAlign: "center",
+            fontSize: "36px",
+            width: "80%",
+          }}
+        >
+          This website is best viewed on a larger screen
+        </Text>
+      )}
       <Image
         alt="loading..."
         src={loadingGif.src}

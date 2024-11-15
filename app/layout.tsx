@@ -32,6 +32,7 @@ export default function RootLayout({
         <title>Stingray Labs</title>
         <meta name="description" content="Stingray Labs" />
       </head>
+
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Provider>
           <Frame>{children}</Frame>

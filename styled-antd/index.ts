@@ -151,6 +151,33 @@ export const Table = styled(AntdTable)`
   .ant-table-footer {
     display: none !important;
   }
+  /* Add background on hover */
+  .ant-table-row-hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Apply border-radius to the first and last cells of the last row */
+  .ant-table tbody > tr:last-child > td:first-child {
+    border-bottom-left-radius: 40px; /* Adjust value as needed */
+  }
+
+  .ant-table tbody > tr:last-child > td:last-child {
+    border-bottom-right-radius: 40px; /* Adjust value as needed */
+  }
+
+  /* Ensure that the hover effect includes border-radius */
+  .ant-table tbody > tr:last-child:hover > td:first-child {
+    border-bottom-left-radius: 40px; /* Adjust value as needed */
+  }
+
+  .ant-table tbody > tr:last-child:hover > td:last-child {
+    border-bottom-right-radius: 40px; /* Adjust value as needed */
+  }
+
+  /* Prevent clipping of rounded corners */
+  .ant-table-container {
+    overflow: hidden;
+  }
 
   /* Ensure that the table container allows for visible rounded corners */
   .ant-table-container {

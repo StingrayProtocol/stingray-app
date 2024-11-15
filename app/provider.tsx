@@ -116,6 +116,8 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
                     headerBorderRadius: 40,
                     footerBg: "rgba(90, 0, 175, 0.6)",
                     borderRadius: 40,
+                    bodySortBg: "transparent",
+                    headerSortActiveBg: "rgba(85, 0, 155, 0.5)",
                   },
                 },
                 algorithm: theme.darkAlgorithm,
