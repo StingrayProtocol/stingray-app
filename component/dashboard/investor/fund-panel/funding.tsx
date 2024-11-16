@@ -301,7 +301,7 @@ const Funding = ({ fund }: { fund?: Fund }) => {
                   <FundPieChart fund={fund} />
                 </Flex>
               )}
-              {hasPosition && false && (
+              {hasPosition && (
                 <Button
                   type="text"
                   style={{

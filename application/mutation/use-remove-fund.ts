@@ -43,6 +43,7 @@ const useRemoveFund = (options?: UseAddFundProps) => {
           ?.filter((history) => !history?.redeemed)
           ?.filter((history) => history.investor === account?.address)
           ?.map((history) => history.share_id) || [];
+      console.log(shares);
       if (!shares.length) {
         throw new Error("Share not found");
       }
