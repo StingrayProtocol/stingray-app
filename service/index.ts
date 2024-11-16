@@ -709,48 +709,113 @@ export class SuiService {
       };
       output_amount: string;
     };
+
+    type BucketWithdrawData = {
+      fund: string;
+      protocol: string;
+      input_type: {
+        name: string;
+      };
+      in_amount: string;
+      output_type1: {
+        name: string;
+      };
+      output_amount1: string;
+      output_type2: {
+        name: string;
+      };
+      output_amount2: string;
+    };
+
     console.log(events);
     const upserts = events.map((event) => {
-      console.log(event);
-      const data: WithdrawData = event.parsedJson as WithdrawData;
-      console.log(data);
-      const timestamp = event.timestampMs ?? "0";
+      if (protocol === "Bucket") {
+        console.log(event);
+        const data: BucketWithdrawData = event.parsedJson as BucketWithdrawData;
+        console.log(data);
+        const timestamp = event.timestampMs ?? "0";
 
-      const object: {
-        id: string;
-        fund_object_id: string;
-        action: string;
-        protocol: string;
-        token_in: string;
-        amount_in: string;
-        token_out: string;
-        amount_out: string;
-        event_seq: string;
-        tx_digest: string;
-        timestamp: string;
-      } = {
-        id: event.id.txDigest + event.id.eventSeq,
-        fund_object_id: data.fund,
-        action: "Withdraw",
-        protocol: data.protocol,
-        token_in: data.input_type.name,
-        amount_in: data.in_amount,
-        token_out: data.output_type.name,
-        amount_out: data.output_amount,
-        event_seq: event.id.eventSeq,
-        tx_digest: event.id.txDigest,
-        timestamp,
-      };
-
-      return this.prisma.trader_operation.upsert({
-        where: {
-          id: event.id.txDigest,
+        const bucketObject: {
+          id: string;
+          fund_object_id: string;
+          action: string;
+          protocol: string;
+          token_in: string;
+          amount_in: string;
+          token_out: string;
+          amount_out: string;
+          token_out2: string;
+          amount_out2: string;
+          event_seq: string;
+          tx_digest: string;
+          timestamp: string;
+        } = {
+          id: event.id.txDigest + event.id.eventSeq,
+          fund_object_id: data.fund,
+          action: "Withdraw",
+          protocol: data.protocol,
+          token_in: data.input_type.name,
+          amount_in: data.in_amount,
+          token_out: data.output_type1.name,
+          amount_out: data.output_amount1,
+          token_out2: data.output_type2.name,
+          amount_out2: data.output_amount2,
           event_seq: event.id.eventSeq,
           tx_digest: event.id.txDigest,
-        },
-        update: object,
-        create: object,
-      });
+          timestamp,
+        };
+
+        return this.prisma.trader_operation.upsert({
+          where: {
+            id: event.id.txDigest,
+            event_seq: event.id.eventSeq,
+            tx_digest: event.id.txDigest,
+          },
+          update: bucketObject,
+          create: bucketObject,
+        });
+      } else {
+        console.log(event);
+        const data: WithdrawData = event.parsedJson as WithdrawData;
+        console.log(data);
+        const timestamp = event.timestampMs ?? "0";
+
+        const object: {
+          id: string;
+          fund_object_id: string;
+          action: string;
+          protocol: string;
+          token_in: string;
+          amount_in: string;
+          token_out: string;
+          amount_out: string;
+          event_seq: string;
+          tx_digest: string;
+          timestamp: string;
+        } = {
+          id: event.id.txDigest + event.id.eventSeq,
+          fund_object_id: data.fund,
+          action: "Withdraw",
+          protocol: data.protocol,
+          token_in: data.input_type.name,
+          amount_in: data.in_amount,
+          token_out: data.output_type.name,
+          amount_out: data.output_amount,
+          event_seq: event.id.eventSeq,
+          tx_digest: event.id.txDigest,
+          timestamp,
+        };
+
+        return this.prisma.trader_operation.upsert({
+          where: {
+            id: event.id.txDigest,
+            event_seq: event.id.eventSeq,
+            tx_digest: event.id.txDigest,
+          },
+          update: object,
+          create: object,
+        });
+      }
     });
     const result = await this.prisma.$transaction(upserts);
     return result;

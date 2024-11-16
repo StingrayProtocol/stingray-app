@@ -77,6 +77,8 @@ model trader_operation {
   amount_in      String
   token_out      String
   amount_out     String
+  token_out2      String?
+  amount_out2     String?
   event_seq      String
   tx_digest      String
   timestamp      String

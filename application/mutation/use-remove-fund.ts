@@ -35,17 +35,18 @@ const useRemoveFund = (options?: UseAddFundProps) => {
       amount: number;
       fund: Fund;
     }) => {
+      if (!account) {
+        throw new Error("Account not found");
+      }
       const shares =
         fund.fund_history
           ?.filter((history) => !history?.redeemed)
-          .map((history) => history.share_id) || [];
+          ?.filter((history) => history.investor === account?.address)
+          ?.map((history) => history.share_id) || [];
       if (!shares.length) {
         throw new Error("Share not found");
       }
 
-      if (!account) {
-        throw new Error("Account not found");
-      }
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
         !process.env.NEXT_PUBLIC_PACKAGE
