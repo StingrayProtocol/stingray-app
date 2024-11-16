@@ -21,10 +21,6 @@ const RemoveFundModal = ({
     },
   });
 
-  const total =
-    (fund?.fund_history.reduce((acc, cur) => acc + Number(cur.amount), 0) ??
-      0) / Math.pow(10, 9);
-
   return (
     <>
       <Modal
@@ -56,7 +52,7 @@ const RemoveFundModal = ({
               }}
               align="center"
             >
-              <FundTokenInput total={total} action="remove" />
+              <FundTokenInput fund={fund} action="remove" />
             </Flex>
           </Form.Item>
           <Form.Item name="submit">

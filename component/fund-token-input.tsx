@@ -1,19 +1,28 @@
 import useGetBalance from "@/application/use-get-balance";
 import { formatPrice } from "@/common";
 import { Flex, Input, Text } from "@/styled-antd";
+import { Fund } from "@/type";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Skeleton } from "antd";
 import { useState } from "react";
 
 const FundTokenInput = ({
-  total,
+  fund,
   action,
 }: {
-  total: number;
+  fund?: Fund;
   action: "add" | "remove";
 }) => {
   const [amount, setAmount] = useState<string>(); //
   const balance = useGetBalance();
   const isLoading = isNaN(Number(balance));
+  const account = useCurrentAccount();
+
+  const total =
+    (fund?.fund_history
+      .filter((history) => history.investor === account?.address)
+      .reduce((acc, cur) => acc + Number(cur.amount), 0) ?? 0) /
+    Math.pow(10, 9);
 
   const Current = () => {
     return (

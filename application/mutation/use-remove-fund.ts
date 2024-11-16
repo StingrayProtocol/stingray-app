@@ -56,7 +56,7 @@ const useRemoveFund = (options?: UseAddFundProps) => {
 
       const tx = new Transaction();
       console.log(amount * 10 ** 9);
-      const share = tx.moveCall({
+      tx.moveCall({
         package: process.env.NEXT_PUBLIC_PACKAGE,
         module: "fund",
         function: "deinvest",
@@ -72,7 +72,6 @@ const useRemoveFund = (options?: UseAddFundProps) => {
         typeArguments: ["0x2::sui::SUI"],
       }); //fund
 
-      tx.transferObjects([share], account.address);
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
