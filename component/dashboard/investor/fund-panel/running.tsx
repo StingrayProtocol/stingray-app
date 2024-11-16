@@ -268,8 +268,9 @@ const Running = ({ fund }: { fund?: Fund }) => {
                           width: "100%",
                         }}
                         justify="space-between"
+                        align="center"
                       >
-                        <Flex gap="large">
+                        <Flex gap="large" align="center">
                           <TraderInfo traderCard={traderCard} />
                           <Text>{log.action}</Text>
                         </Flex>

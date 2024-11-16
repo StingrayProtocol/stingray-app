@@ -11,6 +11,7 @@ export async function GET() {
       },
       include: {
         fund_history: true,
+        trader_operation: true,
         arena: true,
         owner: true,
       },
