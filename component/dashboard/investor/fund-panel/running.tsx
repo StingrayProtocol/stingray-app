@@ -63,7 +63,10 @@ const Running = ({ fund }: { fund?: Fund }) => {
     },
   ];
 
-  console.log(positions);
+  const tradeLogs = fund?.trader_operation.sort(
+    (a, b) => Number(b.timestamp) - Number(a.timestamp)
+  );
+
   return (
     <Flex gap="large" vertical>
       <Flex
@@ -244,7 +247,7 @@ const Running = ({ fund }: { fund?: Fund }) => {
                 vertical
                 gap="small"
               >
-                {fund?.trader_operation?.map((log) => {
+                {tradeLogs?.map((log) => {
                   const tokenType =
                     log.action === "Deposit" ? log.token_in : log.token_out;
                   const coin = coins.find(
@@ -252,8 +255,8 @@ const Running = ({ fund }: { fund?: Fund }) => {
                   );
                   const traderAmount =
                     log.action === "Deposit"
-                      ? Number(log.amount_in) / 10 ** (coin?.decimal ?? 9)
-                      : Number(log.amount_out) / 10 ** (coin?.decimal ?? 9);
+                      ? -Number(log.amount_in) / 10 ** (coin?.decimal ?? 9)
+                      : +Number(log.amount_out) / 10 ** (coin?.decimal ?? 9);
                   return (
                     <Tooltip
                       key={log.id}
@@ -275,7 +278,7 @@ const Running = ({ fund }: { fund?: Fund }) => {
                           <Text>{log.action}</Text>
                         </Flex>
                         <Text>
-                          {Number(traderAmount) > 0 ? "+" : "-"}
+                          {Number(traderAmount) > 0 ? "+" : ""}
                           {traderAmount} {coin?.name}
                         </Text>
                       </Flex>

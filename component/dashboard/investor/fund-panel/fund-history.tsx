@@ -5,6 +5,9 @@ import { Fund } from "@/type";
 import React from "react";
 
 const FundHistory = ({ fund }: { fund?: Fund }) => {
+  const fundLogs = fund?.fund_history.sort(
+    (a, b) => Number(b.timestamp) - Number(a.timestamp)
+  );
   return (
     <Flex
       style={{
@@ -13,7 +16,7 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
       vertical
       gap="small"
     >
-      {fund?.fund_history?.map((log) => (
+      {fundLogs?.map((log) => (
         <Tooltip
           key={log.share_id}
           overlayInnerStyle={{
