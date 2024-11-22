@@ -68,8 +68,8 @@ model fund_history {
 
 // trader operation
 model trader_operation {
-  id             String @id
-  fund           fund   @relation(fields: [fund_object_id], references: [object_id])
+  id             String  @id
+  fund           fund    @relation(fields: [fund_object_id], references: [object_id])
   fund_object_id String
   action         String
   protocol       String
@@ -77,8 +77,8 @@ model trader_operation {
   amount_in      String
   token_out      String
   amount_out     String
-  token_out2      String?
-  amount_out2     String?
+  token_out2     String?
+  amount_out2    String?
   event_seq      String
   tx_digest      String
   timestamp      String

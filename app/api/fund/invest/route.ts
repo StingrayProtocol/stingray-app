@@ -17,6 +17,11 @@ export async function GET(req: Request) {
         end_time: {
           gt: Date.now().toString(),
         },
+        fund_history: {
+          some: {
+            investor: address,
+          },
+        },
       },
       include: {
         fund_history: {
@@ -31,6 +36,11 @@ export async function GET(req: Request) {
       where: {
         end_time: {
           lt: Date.now().toString(),
+        },
+        fund_history: {
+          some: {
+            investor: address,
+          },
         },
       },
       include: {

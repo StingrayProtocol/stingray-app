@@ -52,6 +52,9 @@ const Pools = () => {
           funds={pools?.arenas}
           onSelectFund={(value) => {
             setArenaId(value);
+            document.getElementById("fund-panel")?.scrollIntoView({
+              behavior: "smooth",
+            });
           }}
         />
       ),
@@ -66,6 +69,9 @@ const Pools = () => {
           funds={pools?.fundings}
           onSelectFund={(value) => {
             setFundingId(value);
+            document.getElementById("fund-panel")?.scrollIntoView({
+              behavior: "smooth",
+            });
           }}
         />
       ),
@@ -80,6 +86,9 @@ const Pools = () => {
           funds={pools?.runnings}
           onSelectFund={(value) => {
             setRunningId(value);
+            document.getElementById("fund-panel")?.scrollIntoView({
+              behavior: "smooth",
+            });
           }}
         />
       ),
