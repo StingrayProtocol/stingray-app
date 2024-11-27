@@ -3,7 +3,7 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useEffect, useMemo } from "react";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import useGetPositionValue from "@/application/query/use-get-position-value_";
+import useGetPositionValue from "@/application/query/use-get-position-value";
 
 const TradePieChart = ({ fund }: { fund?: Fund }) => {
   const account = useCurrentAccount();

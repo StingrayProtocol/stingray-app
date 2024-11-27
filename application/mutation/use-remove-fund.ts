@@ -7,14 +7,14 @@ import { Transaction } from "@mysten/sui/transactions";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { message } from "antd";
 import useRefetchWholeFund from "./use-refetch-whole-fund";
-import { Fund } from "@/type";
+import { FundHistory } from "@/type";
 
 type UseAddFundProps = UseMutationOptions<
   void,
   Error,
   {
     amount: number;
-    fund?: Fund;
+    history?: FundHistory[];
   }
 >;
 
@@ -29,20 +29,22 @@ const useRemoveFund = (options?: UseAddFundProps) => {
     });
   return useMutation({
     mutationFn: async ({
-      amount = 0.01,
-      fund,
+      amount,
+      history,
+      fundId,
     }: {
       amount: number;
-      fund: Fund;
+      history: FundHistory[];
+      fundId: string;
     }) => {
       if (!account) {
         throw new Error("Account not found");
       }
       const shares =
-        fund.fund_history
-          ?.filter((history) => !history?.redeemed)
-          ?.filter((history) => history.investor === account?.address)
-          ?.map((history) => history.share_id) || [];
+        history
+          ?.filter((h) => !h?.redeemed)
+          ?.filter((h) => h.investor === account?.address)
+          ?.map((h) => h.share_id) || [];
       console.log(shares);
       if (!shares.length) {
         throw new Error("Share not found");
@@ -63,7 +65,7 @@ const useRemoveFund = (options?: UseAddFundProps) => {
         function: "deinvest",
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG), //global config
-          tx.object(fund.object_id), //fund id
+          tx.object(fundId), //fund id
           tx.makeMoveVec({
             elements: shares.map((share) => tx.object(share)),
           }), //shares
@@ -84,7 +86,7 @@ const useRemoveFund = (options?: UseAddFundProps) => {
     ...options,
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
-      await syncDb.fundHistory();
+      await syncDb.deinvest();
       refetch();
       message.success("Fund removed successfully");
     },

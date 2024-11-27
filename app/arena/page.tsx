@@ -9,7 +9,7 @@ import TraderInfo from "@/common/trader-info";
 import { Fund, TraderCard } from "@/type";
 import { TeamOutlined } from "@ant-design/icons";
 import { Skeleton } from "antd";
-import useGetPositionValue from "@/application/query/use-get-position-value_";
+import useGetPositionValue from "@/application/query/use-get-position-value";
 import { useEffect, useState } from "react";
 
 const Roi = ({

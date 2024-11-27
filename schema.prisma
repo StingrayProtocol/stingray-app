@@ -8,16 +8,17 @@ generator client {
 }
 
 model trader_card {
-  object_id     String @id
+  object_id     String          @id
   first_name    String
   last_name     String
   description   String
   image_blob_id String
   owner_address String
-  event_seq     String
+  event_seq     Int
   tx_digest     String
   timestamp     String
   fund          fund[]
+  settle_result settle_result[]
 }
 
 model arena {
@@ -27,7 +28,7 @@ model arena {
   invest_duration String
   attend_duration String
   fund            fund[]
-  event_seq       String
+  event_seq       Int
   tx_digest       String
   timestamp       String
 }
@@ -49,19 +50,24 @@ model fund {
   trader_fee       String
   limit_amount     String
   expected_roi     String
-  event_seq        String
+  event_seq        Int
   tx_digest        String
   timestamp        String
+  settle_result    settle_result[]
+  claim_result     claim_result[]
 }
 
+// don't need to know How much a share is worth
+// amount present the flow of fund, not the value of share
 model fund_history {
   share_id       String  @id
+  action         String
   fund           fund    @relation(fields: [fund_object_id], references: [object_id])
   fund_object_id String
   redeemed       Boolean
   amount         String
   investor       String
-  event_seq      String
+  event_seq      Int
   tx_digest      String
   timestamp      String
 }
@@ -79,7 +85,29 @@ model trader_operation {
   amount_out     String
   token_out2     String?
   amount_out2    String?
-  event_seq      String
+  event_seq      Int
+  tx_digest      String
+  timestamp      String
+}
+
+model settle_result {
+  fund_object_id String      @id
+  fund           fund        @relation(fields: [fund_object_id], references: [object_id])
+  trader_id      String
+  trader         trader_card @relation(fields: [trader_id], references: [object_id])
+  match_roi      Boolean
+  event_seq      Int
+  tx_digest      String
+  timestamp      String
+}
+
+model claim_result {
+  id             String      @id
+  fund_object_id String
+  fund           fund        @relation(fields: [fund_object_id], references: [object_id])
+  receiver       String
+  amount         String
+  event_seq      Int
   tx_digest      String
   timestamp      String
 }

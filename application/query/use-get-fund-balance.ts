@@ -22,6 +22,7 @@ const useGetFundBalance = ({ fundId, ...options }: UseGetFundBalanceProps) => {
     },
     ...options,
     enabled: !!fundId,
+    refetchInterval: 3000,
   });
 };
 

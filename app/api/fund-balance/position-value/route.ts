@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { pythPriceEstimate, quote } from "@/common/quote";
+import { Quoter } from "@/common/quote";
 import { coins } from "@/constant/coin";
 import { PRICE_FEE } from "@/constant/price";
 import { prisma } from "@/prisma";
 import { Farming } from "@/type";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 0;
+import { createClient, RedisClientType } from "redis";
+
+let client: RedisClientType;
+(async () => {
+  client = createClient();
+  client.on("error", (err) => console.log("Redis Client Error", err));
+  await client.connect();
+})();
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -30,7 +38,7 @@ export async function GET(req: Request) {
           SELECT *, 
           LAG(action) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_action,
           LAG(protocol) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_protocol,
-          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Suilend' THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
+          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Suilend' AND fund_object_id = ${fundId} THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
           FROM trader_operation
           ORDER BY timestamp DESC, event_seq DESC
       ) AS subquery
@@ -43,7 +51,7 @@ export async function GET(req: Request) {
           SELECT *, 
           LAG(action) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_action,
           LAG(protocol) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_protocol,
-          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Scallop' THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
+          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Scallop' AND fund_object_id = ${fundId} THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
           FROM trader_operation
           ORDER BY timestamp DESC, event_seq DESC
       ) AS subquery
@@ -57,7 +65,8 @@ export async function GET(req: Request) {
       .toFixed(decimal)
       .replace(/\.?0+$/, "");
   };
-
+  console.log(suilendOperations);
+  console.log(scallopOperations);
   const tokens = coins.map((coin) => {
     let balance = 0;
     const farmings: Farming[] = [];
@@ -66,7 +75,11 @@ export async function GET(req: Request) {
     if (coin.name === "SUI") {
       const funded =
         fund?.fund_history?.reduce((acc, curr) => {
-          acc += Number(curr.amount);
+          if (curr.action === "Invested") {
+            acc += Number(curr.amount);
+          } else if (curr.action === "Deinvested") {
+            acc -= Number(curr.amount);
+          }
           return acc;
         }, 0) ?? 0;
       balance = funded;
@@ -79,7 +92,7 @@ export async function GET(req: Request) {
         }
         return acc;
       }, 0) ?? 0;
-
+    console.log(swapPaid, "swapPaid");
     const swapReceived =
       fund?.trader_operation?.reduce((acc, curr) => {
         if (curr.token_out === coinTypeName && curr.action === "Swap") {
@@ -115,6 +128,7 @@ export async function GET(req: Request) {
       suilendOperations as any[]
     )?.reduce<Farming>(
       (acc, curr) => {
+        console.log(curr, "curr");
         if (
           curr.token_in === coinTypeName &&
           curr.action === "Deposit" &&
@@ -225,6 +239,11 @@ export async function GET(req: Request) {
 
     balance =
       balance + swapReceived - swapPaid - depositPaid + withdrawReceived;
+    console.log("farmings", farmings);
+
+    if (coin.name === "BUCK") {
+      balance = balance < 10 ? 0 : balance;
+    }
 
     return {
       name: coin.name,
@@ -234,8 +253,28 @@ export async function GET(req: Request) {
       farmings,
     };
   });
+  const quoter = new Quoter();
 
-  const SUIUSD = await pythPriceEstimate(PRICE_FEE[10].priceFeeId);
+  let SUIUSD: number | undefined = 0;
+
+  if (client?.isReady) {
+    const key = `SUIUSD`;
+    const cachedQuote = await client.get(key);
+    if (cachedQuote) {
+      const { r } = JSON.parse(cachedQuote);
+      SUIUSD = r;
+    }
+  }
+
+  if (!SUIUSD) {
+    SUIUSD = await quoter.pythPriceEstimate(PRICE_FEE[10].priceFeeId);
+    if (SUIUSD) {
+      await client.set(`SUIUSD`, JSON.stringify({ r: SUIUSD }), {
+        EX: 5,
+      });
+    }
+  }
+
   const balances = await Promise.all(
     tokens.map(async (token) => {
       const shouldGetPriceRate =
@@ -243,12 +282,34 @@ export async function GET(req: Request) {
       let rate;
       let inUSD = 0;
       if (shouldGetPriceRate) {
-        rate = await quote(
-          PRICE_FEE.findIndex((price) => price.name === token.name),
-          10,
-          1,
-          "in"
+        const inToken = PRICE_FEE.findIndex(
+          (price) => price.name === token.name
         );
+
+        if (client?.isReady) {
+          const key = `${inToken}-${10}-${1}-${"in"}`;
+          const cachedQuote = await client.get(key);
+          if (cachedQuote) {
+            const { r } = JSON.parse(cachedQuote);
+            rate = r;
+          }
+        }
+        console.log(inToken, "inToken");
+        console.log(rate, "rate1");
+
+        if (!rate) {
+          rate = await quoter.quote(inToken, 10, 1, "in");
+          console.log(rate, "rate2");
+          await client.set(
+            `${inToken}-${10}-${1}-${"in"}`,
+            JSON.stringify({ r: rate }),
+            {
+              EX: 5,
+            }
+          );
+        }
+
+        console.log(rate, "rate3");
 
         inUSD = rate * Number(token.value) * (SUIUSD ?? 0);
       }
@@ -259,7 +320,6 @@ export async function GET(req: Request) {
       };
     })
   );
-
   const sui =
     Number(balances?.find((balance) => balance.name === "SUI")?.value) ?? 0;
 

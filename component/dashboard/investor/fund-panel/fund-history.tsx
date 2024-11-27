@@ -1,11 +1,11 @@
 import { formatSuiPrice, getRelativeTime } from "@/common";
 import TraderInfo from "@/common/trader-info";
 import { Flex, Text, Tooltip } from "@/styled-antd";
-import { Fund } from "@/type";
+import { FundHistory as FundHistoryType } from "@/type";
 import React from "react";
 
-const FundHistory = ({ fund }: { fund?: Fund }) => {
-  const fundLogs = fund?.fund_history.sort(
+const FundHistory = ({ history }: { history?: FundHistoryType[] }) => {
+  const fundLogs = history?.sort(
     (a, b) => Number(b.timestamp) - Number(a.timestamp)
   );
   return (
@@ -35,11 +35,13 @@ const FundHistory = ({ fund }: { fund?: Fund }) => {
             <Flex gap="large" align="center">
               <TraderInfo address={log.investor} />
               <Text>
-                {Number(log.amount) > 0 ? "Funded Strategy" : "Removed Funds"}
+                {log.action === "Invested"
+                  ? "Funded Strategy"
+                  : "Removed Funds"}
               </Text>
             </Flex>
             <Text>
-              {Number(log.amount) > 0 ? "+" : "-"}
+              {log.action === "Invested" ? "+" : "-"}
               {formatSuiPrice(Number(log.amount))} SUI
             </Text>
           </Flex>

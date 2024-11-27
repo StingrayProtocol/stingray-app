@@ -39,42 +39,42 @@ const Farm = ({
 
   const { mutate: scallopDeposit, isPending: isScallopDepositing } =
     useScallopDeposit({
-      fund: fundId,
+      fundId,
       onSuccess: () => {
         setAmount("");
       },
     });
   const { mutate: bucketDeposit, isPending: isBucketDepositing } =
     useBucketDeposit({
-      fund: fundId,
+      fundId,
       onSuccess: () => {
         setAmount("");
       },
     });
   const { mutate: suilendDeposit, isPending: isSuilendDepositing } =
     useSuilendDeposit({
-      fund: fundId,
+      fundId,
       onSuccess: () => {
         setAmount("");
       },
     });
   const { mutate: scallopWithdraw, isPending: isScallopWithdrawing } =
     useScallopWithdraw({
-      fund: fundId,
+      fundId,
       onSuccess: () => {
         setAmount("");
       },
     });
   const { mutate: bucketWithdraw, isPending: isBucketWithdrawing } =
     useBucketWithdraw({
-      fund: fundId,
+      fundId,
       onSuccess: () => {
         setAmount("");
       },
     });
   const { mutate: suilendWithdraw, isPending: isSuilendWithdrawing } =
     useSuilendWithdraw({
-      fund: fundId,
+      fundId,
       onSuccess: () => {
         setAmount("");
       },
@@ -201,26 +201,34 @@ const Farm = ({
                 scallopDeposit({
                   amount,
                   name: token,
-                  trader: traderCard?.object_id,
-                  fund: fundId,
+                  traderId: traderCard?.object_id,
+                  fundId,
                 });
               } else if (name === "Bucket") {
                 const hasDeposit =
                   (balance?.find((b) => b.name === token)?.farmings?.length ??
                     0) > 0;
+
+                const buckAmount = balance
+                  ?.find((b) => b.name === token)
+                  ?.farmings.reduce((acc, cur) => {
+                    return acc + Number(cur.value);
+                  }, 0);
+
                 bucketDeposit({
                   amount,
                   name: token,
-                  trader: traderCard?.object_id,
-                  fund: fundId,
+                  traderId: traderCard?.object_id,
+                  fundId,
                   hasDeposit,
+                  originalAmount: buckAmount,
                 });
               } else if (name === "Suilend") {
                 suilendDeposit({
                   amount,
                   name: token,
-                  trader: traderCard?.object_id,
-                  fund: fundId,
+                  traderId: traderCard?.object_id,
+                  fundId,
                 });
               }
             }}
@@ -259,11 +267,12 @@ const Farm = ({
                 }
 
                 scallopWithdraw({
-                  liquidityAmount: Number(liquidityAmount) - 1,
+                  // liquidityAmount: Number(liquidityAmount) - 1,
+                  liquidityAmount: Number(liquidityAmount),
                   reStakeAmount,
                   name: token,
-                  trader: traderCard?.object_id,
-                  fund: fundId,
+                  traderId: traderCard?.object_id,
+                  fundId,
                 });
               } else if (name === "Bucket") {
                 const liquidityAmount = farmings
@@ -276,8 +285,8 @@ const Farm = ({
 
                 bucketWithdraw({
                   name: token,
-                  trader: traderCard?.object_id,
-                  fund: fundId,
+                  traderId: traderCard?.object_id,
+                  fundId,
                   reStakeAmount,
                 });
               } else if (name === "Suilend") {
@@ -288,11 +297,12 @@ const Farm = ({
                   return;
                 }
                 suilendWithdraw({
-                  liquidityAmount: Number(liquidityAmount) - 1,
+                  // liquidityAmount: Number(liquidityAmount) - 1,
+                  liquidityAmount: Number(liquidityAmount),
                   reStakeAmount,
                   name: token,
-                  trader: traderCard?.object_id,
-                  fund: fundId,
+                  traderId: traderCard?.object_id,
+                  fundId,
                 });
               }
             }}

@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const owner = url.searchParams.get("owner");
@@ -17,6 +18,9 @@ export async function GET(req: Request) {
         },
         end_time: {
           gt: Date.now().toString(),
+        },
+        settle_result: {
+          none: {},
         },
       },
       include: {

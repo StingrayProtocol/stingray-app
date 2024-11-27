@@ -29,7 +29,7 @@ const Swap = ({
       setInAmount("");
       setOutAmount("");
     },
-    fund: fundId,
+    fundId,
   });
   const inTokenDecimal =
     coins.find((coin) => coin.name === inToken)?.decimal ?? 9;
@@ -166,7 +166,11 @@ const Swap = ({
         htmlType="submit"
         loading={isSwaping}
         disabled={
-          isSwaping || isInSufficient || !amountValid || !traderCard?.object_id
+          isSwaping ||
+          isInSufficient ||
+          !amountValid ||
+          !traderCard?.object_id ||
+          isQuoting
         }
         onClick={() => {
           if (!traderCard?.object_id || !fundId) {
@@ -174,8 +178,8 @@ const Swap = ({
           }
 
           swap({
-            trader: traderCard?.object_id,
-            fund: fundId,
+            traderId: traderCard?.object_id,
+            fundId,
             inToken,
             inAmount,
             outToken,

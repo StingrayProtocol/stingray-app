@@ -4,6 +4,7 @@ import logo from "@/public/Stingray-Round.png";
 import { TraderCard } from "@/type";
 import { formatAddress } from "./connect-button";
 import useGetTraderCard from "@/application/query/use-get-trader-card";
+import { Skeleton } from "antd";
 
 const TraderInfo = ({
   traderCard,
@@ -12,7 +13,7 @@ const TraderInfo = ({
   traderCard?: TraderCard;
   address?: string;
 }) => {
-  const { data: _traderCard } = useGetTraderCard({
+  const { data: _traderCard, isPending } = useGetTraderCard({
     address,
   });
   return (
@@ -39,16 +40,21 @@ const TraderInfo = ({
           <Image preview={false} src={logo.src} alt={traderCard?.first_name} />
         )}
       </Flex>
-      <Text
-        style={{
-          fontSize: "16px",
-          fontWeight: 600,
-        }}
-      >{`${
-        traderCard?.first_name ??
-        _traderCard?.first_name ??
-        formatAddress(address)
-      }`}</Text>
+      {(traderCard || _traderCard || address) && (
+        <Text
+          style={{
+            fontSize: "16px",
+            fontWeight: 600,
+          }}
+        >{`${
+          traderCard?.first_name ??
+          _traderCard?.first_name ??
+          formatAddress(address)
+        }`}</Text>
+      )}
+      {isPending && !traderCard && !address && (
+        <Skeleton.Input style={{ width: "100px", height: "20px" }} active />
+      )}
     </Flex>
   );
 };

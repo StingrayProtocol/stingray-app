@@ -43,9 +43,9 @@ const useMintTraderCard = (options?: UseMintTraderCardProps) => {
       }
       console.log(suiNS);
 
-      if (!suiNS) {
-        throw new Error("SuiNS not found");
-      }
+      // if (!suiNS) {
+      //   throw new Error("SuiNS not found");
+      // }
       if (
         !process.env.NEXT_PUBLIC_GLOBAL_CONFIG ||
         !process.env.NEXT_PUBLIC_HOST_CONTROLLER ||
@@ -76,11 +76,12 @@ const useMintTraderCard = (options?: UseMintTraderCardProps) => {
         arguments: [
           tx.object(process.env.NEXT_PUBLIC_GLOBAL_CONFIG),
           tx.object(process.env.NEXT_PUBLIC_HOST_CONTROLLER),
-          tx.object(suiNS), //sui ns
+          // tx.object(suiNS), //sui ns
           tx.pure.string(pfp),
           tx.pure.string(traderCard),
           tx.pure.string(intro),
-          tx.splitCoins(tx.gas, [Math.pow(10, 9)]),
+          // tx.splitCoins(tx.gas, [Math.pow(10, 9)]),
+          // tx.splitCoins(tx.gas, [0]),
           tx.object("0x6"),
         ],
       });

@@ -1,7 +1,8 @@
-import { quote } from "@/common/quote";
+import { Quoter } from "@/common/quote";
 import { PRICE_FEE } from "@/constant/price";
 import { useQuery } from "@tanstack/react-query";
 
+const quoter = new Quoter();
 const useGetQuote = ({
   inToken,
   outToken,
@@ -21,10 +22,10 @@ const useGetQuote = ({
       const indexOut = PRICE_FEE.findIndex((item) => item.name === outToken);
       if (indexOut < 0) throw new Error("Invalid outToken");
 
-      return quote(indexIn, indexOut, amount, type);
+      return quoter.quote(indexIn, indexOut, amount, type);
     },
     enabled: Boolean(inToken && outToken && amount),
-    refetchInterval: 7000,
+    refetchInterval: 5000,
   });
 };
 

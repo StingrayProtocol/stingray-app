@@ -9,6 +9,7 @@ import useMintTraderCard from "@/application/mutation/use-mint-trader-card";
 import { beforeUpload, FileType, getBase64 } from "@/common/upload-utils";
 import MainButton from "@/common/main-button";
 import useGetOwnedTraderCard from "@/application/query/use-get-owned-trader-card";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Step4 = ({
   step,
@@ -29,6 +30,7 @@ const Step4 = ({
   const [loading, setLoading] = useState(false);
   const { mutate: mint, isPending: isMinting, isSuccess } = useMintTraderCard();
   const { refetch } = useGetOwnedTraderCard();
+  const queryClient = useQueryClient();
 
   const UploadButton = (
     <Flex
@@ -201,7 +203,10 @@ const Step4 = ({
                   </Text>
                   <Button
                     type="primary"
-                    onClick={() => {
+                    onClick={async () => {
+                      await queryClient.invalidateQueries({
+                        queryKey: ["ownedTraderCard"],
+                      });
                       refetch();
                     }}
                   >
@@ -226,7 +231,7 @@ const Step4 = ({
                       name="avatar"
                       listType="picture-card"
                       className="avatar-uploader"
-                      accept=".png,.jpeg"
+                      accept="image/png, image/jpeg"
                       showUploadList={false}
                       action=""
                       beforeUpload={beforeUpload}

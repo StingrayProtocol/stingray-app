@@ -17,6 +17,7 @@ export type FundHistory = {
   share_id: string;
   fund: Fund;
   fund_object_id: string;
+  action: "Invested" | "Deinvested";
   amount: string;
   redeemed: boolean;
   investor: string;

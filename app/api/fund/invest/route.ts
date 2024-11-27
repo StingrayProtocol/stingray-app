@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const address = url.searchParams.get("investor");
@@ -22,6 +23,9 @@ export async function GET(req: Request) {
             investor: address,
           },
         },
+        settle_result: {
+          none: {},
+        },
       },
       include: {
         fund_history: {
@@ -34,9 +38,18 @@ export async function GET(req: Request) {
     }),
     await prisma.fund.findMany({
       where: {
-        end_time: {
-          lt: Date.now().toString(),
-        },
+        OR: [
+          {
+            end_time: {
+              lt: Date.now().toString(),
+            },
+          },
+          {
+            settle_result: {
+              some: {}, // Ensures at least one related settle_result exists
+            },
+          },
+        ],
         fund_history: {
           some: {
             investor: address,

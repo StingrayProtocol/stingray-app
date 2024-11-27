@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export async function GET() {
   const now = Date.now();
   const funds =
@@ -11,6 +12,9 @@ export async function GET() {
         },
         end_time: {
           gt: now.toString(),
+        },
+        settle_result: {
+          none: {},
         },
       },
       include: {

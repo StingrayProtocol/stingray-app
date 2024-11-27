@@ -1,29 +1,40 @@
 import useGetBalance from "@/application/use-get-balance";
 import { formatPrice } from "@/common";
 import { Flex, Input, Text } from "@/styled-antd";
-import { Fund } from "@/type";
+import { FundHistory } from "@/type";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Skeleton } from "antd";
 import { useState } from "react";
 
 const FundTokenInput = ({
-  fund,
+  history: _history = [],
   action,
+  onChange,
 }: {
-  fund?: Fund;
+  history?: FundHistory[];
   action: "add" | "remove";
+  onChange: (amount: string) => void;
 }) => {
   const [amount, setAmount] = useState<string>(); //
   const balance = useGetBalance();
   const isLoading = isNaN(Number(balance));
   const account = useCurrentAccount();
 
-  const total =
-    (fund?.fund_history
-      .filter((history) => history.investor === account?.address)
-      .reduce((acc, cur) => acc + Number(cur.amount), 0) ?? 0) /
-    Math.pow(10, 9);
-
+  const history = [..._history];
+  history?.sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
+  history?.shift();
+  const total = history?.length
+    ? history
+        .filter((history) => history.investor === account?.address)
+        .reduce((acc, cur) => {
+          acc =
+            cur.action === "Invested"
+              ? acc + Number(cur.amount)
+              : acc - Number(cur.amount);
+          return acc;
+        }, 0) / Math.pow(10, 9)
+    : 0;
+  console.log(history);
   const Current = () => {
     return (
       <Text
@@ -84,9 +95,10 @@ const FundTokenInput = ({
               cursor: "pointer",
             }}
             onClick={() => {
-              setAmount(
-                action === "add" ? balance.toString() : total.toString()
-              );
+              const value =
+                action === "add" ? balance.toString() : total.toString();
+              setAmount(value);
+              onChange(value);
             }}
           >
             MAX

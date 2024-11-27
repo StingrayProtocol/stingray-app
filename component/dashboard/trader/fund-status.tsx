@@ -4,7 +4,7 @@ import { formatSuiPrice, getDHMS } from "@/common";
 import TradePieChart from "@/component/trade-pie-chart";
 import { Fund } from "@/type";
 import CountDown from "@/component/count-down";
-import useGetPositionValue from "@/application/query/use-get-position-value_";
+import useGetPositionValue from "@/application/query/use-get-position-value";
 
 const DataTitle = ({ children }: { children: React.ReactNode }) => (
   <Text style={{ fontSize: "12px" }}>{children}</Text>
@@ -15,15 +15,21 @@ const DataDescription = ({ children }: { children: React.ReactNode }) => (
 );
 
 const FundStatus = ({ fund }: { fund?: Fund }) => {
-  const total = fund?.fund_history?.reduce(
-    (acc, cur) => acc + Number(cur.amount),
-    0
-  );
+  const total = fund?.fund_history?.length
+    ? fund?.fund_history.reduce((acc, cur) => {
+        acc =
+          cur.action === "Invested"
+            ? acc + Number(cur.amount)
+            : acc - Number(cur.amount);
+        return acc;
+      }, 0)
+    : 0;
 
   const { data: positionValue } = useGetPositionValue({
     fundId: fund?.object_id,
   });
-
+  console.log(positionValue);
+  console.log((positionValue?.farming ?? 0) + (positionValue?.trading ?? 0));
   const data = [
     {
       name: "Funded Amount:",
@@ -48,7 +54,7 @@ const FundStatus = ({ fund }: { fund?: Fund }) => {
             }}
           />
           <DataDescription>
-            {(positionValue?.farming ?? 0 + (positionValue?.trading ?? 0))
+            {((positionValue?.farming ?? 0) + (positionValue?.trading ?? 0))
               .toFixed(9)
               .replace(/\.?0+$/, "")}{" "}
             SUI

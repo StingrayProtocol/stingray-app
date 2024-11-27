@@ -228,7 +228,7 @@ const CreateFund = () => {
                   name="avatar"
                   listType="picture-card"
                   className="avatar-uploader"
-                  accept=".png,.jpeg"
+                  accept="image/png, image/jpeg"
                   showUploadList={false}
                   action={""}
                   beforeUpload={beforeUpload}
@@ -236,6 +236,9 @@ const CreateFund = () => {
                 >
                   {imageUrl ? (
                     <Image
+                      style={{
+                        objectFit: "cover",
+                      }}
                       preview={false}
                       width="100%"
                       height="100%"

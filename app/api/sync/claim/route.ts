@@ -2,6 +2,6 @@ import { getSuiService } from "@/common";
 
 export async function POST() {
   const suiService = getSuiService();
-  await suiService.upsertFundHistoryEvents();
+  await suiService.upsertClaimEvents();
   return Response.json({});
 }

@@ -22,6 +22,7 @@ const useGetInvestFund = (options?: UseGetInvestFundProps) => {
       return response.json();
     },
     ...options,
+    enabled: !!account,
   });
 };
 

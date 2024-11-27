@@ -95,12 +95,12 @@ const Step2 = ({
             )}
             <Form.Item
               name={"suiNS"}
-              rules={[
-                {
-                  required: true,
-                  message: "Please select SuiNS",
-                },
-              ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Please select SuiNS",
+              //   },
+              // ]}
             >
               <Radio.Group>
                 <Flex wrap="wrap" gap="middle">
@@ -138,7 +138,8 @@ const Step2 = ({
 
           <Form.Item>
             <Flex justify="flex-end">
-              <MainButton type="primary" htmlType="submit" disabled={!selected}>
+              {/* <MainButton type="primary" htmlType="submit" disabled={!selected}> */}
+              <MainButton type="primary" htmlType="submit">
                 Confirm
               </MainButton>
             </Flex>

@@ -10,7 +10,7 @@ dotenv.config({
 const rpcUrl = getFullnodeUrl("mainnet");
 
 const job = CronJob.from({
-  cronTime: "*/20 * * * * *",
+  cronTime: "*/30 * * * * *",
   onTick: async function () {
     const packageId = process.env.NEXT_PUBLIC_PACKAGE;
     if (!packageId) {

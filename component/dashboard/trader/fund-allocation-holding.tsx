@@ -1,5 +1,5 @@
 import useGetFundBalance from "@/application/query/use-get-fund-balance";
-import useGetPositionValue from "@/application/query/use-get-position-value_";
+import useGetPositionValue from "@/application/query/use-get-position-value";
 import { coins } from "@/constant/coin";
 import { Flex, Image, Text, Title } from "@/styled-antd";
 import { Fund } from "@/type";
@@ -69,10 +69,13 @@ const FundAllocationHolding = ({ fund }: { fund?: Fund }) => {
   });
 
   const total = (
-    (fund?.fund_history.reduce(
-      (acc, history) => acc + Number(history.amount),
-      0
-    ) ?? 0) / Math.pow(10, 9)
+    (fund?.fund_history.reduce((acc, cur) => {
+      acc =
+        cur.action === "Invested"
+          ? acc + Number(cur.amount)
+          : acc - Number(cur.amount);
+      return acc;
+    }, 0) ?? 0) / Math.pow(10, 9)
   )
     ?.toFixed(9)
     .replace(/\.?0+$/, "");

@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import useGetAllFund from "../query/use-get-all-fund";
 import useGetInvestFund from "../query/use-get-invest-fund";
 import useGetOwnedFund from "../query/use-get-owned-fund";
@@ -8,9 +9,14 @@ const useRefetchWholeFund = () => {
   const { refetch: e } = useGetOwnedFund();
   const { refetch: f } = useGetInvestFund();
   const { refetch: t } = useGetPools();
+  const queryClient = useQueryClient();
 
   return {
-    refetch: () => {
+    refetch: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["fund-history"],
+        refetchType: "all",
+      });
       r();
       e();
       f();

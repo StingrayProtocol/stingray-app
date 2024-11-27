@@ -10,7 +10,7 @@ dotenv.config({
 const rpcUrl = getFullnodeUrl("mainnet");
 
 const job = CronJob.from({
-  cronTime: "*/20 * * * * *",
+  cronTime: "*/30 * * * * *",
   onTick: async function () {
     const suiService = new SuiService({
       url: process.env.NEXT_PUBLIC_SUI_NETWORK_URL ?? rpcUrl,

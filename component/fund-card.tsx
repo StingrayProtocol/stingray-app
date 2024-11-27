@@ -10,7 +10,13 @@ const FundCard = ({ fund, card = true }: { fund?: Fund; card?: boolean }) => {
     objectId: fund?.owner_id,
   });
   const total = fund?.fund_history?.length
-    ? fund?.fund_history.reduce((acc, cur) => acc + Number(cur.amount), 0)
+    ? fund?.fund_history.reduce((acc, cur) => {
+        acc =
+          cur.action === "Invested"
+            ? acc + Number(cur.amount)
+            : acc - Number(cur.amount);
+        return acc;
+      }, 0)
     : 0;
 
   //same investor aggregate to one

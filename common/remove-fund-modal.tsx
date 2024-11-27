@@ -2,14 +2,16 @@ import { Flex, Form, Modal, Title } from "@/styled-antd";
 import MainButton from "./main-button";
 import FundTokenInput from "@/component/fund-token-input";
 import useRemoveFund from "@/application/mutation/use-remove-fund";
-import { Fund } from "@/type";
+import { FundHistory } from "@/type";
 
 const RemoveFundModal = ({
-  fund,
+  fundId,
+  history = [],
   isOpen,
   onClose,
 }: {
-  fund?: Fund;
+  fundId?: string;
+  history?: FundHistory[];
   isOpen: boolean;
   onClose: () => void;
 }) => {
@@ -40,8 +42,8 @@ const RemoveFundModal = ({
           form={form}
           onFinish={(d) => {
             const data = d as { amount: number };
-            if (!fund) return;
-            removeFund({ fund, amount: data.amount });
+            if (!fundId) return;
+            removeFund({ fundId, history, amount: data.amount });
           }}
         >
           <Form.Item name="amount">
@@ -52,7 +54,13 @@ const RemoveFundModal = ({
               }}
               align="center"
             >
-              <FundTokenInput fund={fund} action="remove" />
+              <FundTokenInput
+                history={history}
+                action="remove"
+                onChange={(value) => {
+                  form.setFieldValue("amount", value);
+                }}
+              />
             </Flex>
           </Form.Item>
           <Form.Item name="submit">

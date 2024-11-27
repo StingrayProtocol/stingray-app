@@ -75,6 +75,8 @@ const useAddFund = (options?: UseAddFundProps) => {
       const result = await signAndExecuteTransaction({
         transaction: tx,
       });
+      await syncDb.invest();
+
       console.log(result);
     },
     onError: (error) => {
@@ -83,7 +85,6 @@ const useAddFund = (options?: UseAddFundProps) => {
     ...options,
     onSuccess: async (_data, _variables, _context) => {
       options?.onSuccess?.(_data, _variables, _context);
-      await syncDb.fundHistory();
       refetch();
       message.success("Fund added successfully");
     },

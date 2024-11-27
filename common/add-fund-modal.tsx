@@ -2,14 +2,16 @@ import { Flex, Form, Modal, Title } from "@/styled-antd";
 import MainButton from "./main-button";
 import FundTokenInput from "@/component/fund-token-input";
 import useAddFund from "@/application/mutation/use-add-fund";
-import { Fund } from "@/type";
+import { FundHistory } from "@/type";
 
 const AddFundModal = ({
-  fund,
+  fundId,
+  history,
   isOpen,
   onClose,
 }: {
-  fund?: Fund;
+  fundId?: string;
+  history?: FundHistory[];
   isOpen: boolean;
   onClose: () => void;
 }) => {
@@ -40,8 +42,8 @@ const AddFundModal = ({
           form={form}
           onFinish={(d) => {
             const data = d as { amount: number };
-            if (!fund) return;
-            addFund({ fundId: fund.object_id, amount: data.amount });
+            if (!fundId) return;
+            addFund({ fundId, amount: data.amount });
           }}
         >
           <Form.Item name="amount">
@@ -52,7 +54,13 @@ const AddFundModal = ({
               }}
               align="center"
             >
-              <FundTokenInput fund={fund} action="add" />
+              <FundTokenInput
+                history={history}
+                action="add"
+                onChange={(value) => {
+                  form.setFieldValue("amount", value);
+                }}
+              />
             </Flex>
           </Form.Item>
           <Form.Item name="submit">

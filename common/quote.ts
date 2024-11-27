@@ -5,24 +5,8 @@ import { CetusClmmSDK, TickMath } from "@cetusprotocol/cetus-sui-clmm-sdk";
 import { BN } from "bn.js";
 import { PRICE_FEE } from "@/constant/price";
 
-//Pyth Settings
-const connection = new HermesClient("https://hermes.pyth.network", {});
-
-export const pythPriceEstimate = async (cryptoPriceFee: string) => {
-  const priceUpdates = await connection.getLatestPriceUpdates([cryptoPriceFee]);
-
-  if (priceUpdates["parsed"] && priceUpdates["parsed"].length > 0) {
-    const exponent = Math.abs(priceUpdates["parsed"][0]["price"]["expo"]);
-    const decimals = Math.pow(10, exponent);
-    const price =
-      Number(priceUpdates["parsed"][0]["price"]["price"]) / decimals;
-    return price;
-  } else {
-    console.error("priceUpdates['parsed'] is null or undefined or empty");
-  }
-};
-
 const SUI_DECIMAL = 9;
+
 const mainnet = {
   fullRpcUrl:
     process.env.NEXT_PUBLIC_SUI_NETWORK_URL ??
@@ -94,68 +78,91 @@ const mainnet = {
   },
   aggregatorUrl: "https://api-sui.cetus.zone/router",
 };
+export class Quoter {
+  connection: HermesClient;
+  MainnetSDK: CetusClmmSDK;
 
-const MainnetSDK = new CetusClmmSDK(mainnet);
-
-const getPoolDetail = async (poolAddress: string) => {
-  const poolDetail = await MainnetSDK.Pool.getPool(poolAddress);
-  return poolDetail;
-};
-
-const cetusPriceEstimateForSui = async (
-  poolAddress: string,
-  decimalA: number
-) => {
-  const pool = await getPoolDetail(poolAddress);
-  const price = TickMath.sqrtPriceX64ToPrice(
-    new BN(pool.current_sqrt_price),
-    decimalA,
-    SUI_DECIMAL
-  );
-
-  return price.toNumber();
-};
-
-export const quote = async (
-  inputCoinIndex: number,
-  outputCoinIndex: number,
-  amount: number,
-  type: "in" | "out"
-) => {
-  let coinAAmount;
-  let coinBAmount;
-
-  if (inputCoinIndex == 10) {
-    coinAAmount = 1;
-  } else if (inputCoinIndex < 12) {
-    const coinAUSD = await pythPriceEstimate(
-      PRICE_FEE[inputCoinIndex].priceFeeId
-    );
-    const SUIUSD = await pythPriceEstimate(PRICE_FEE[10].priceFeeId);
-    coinAAmount = coinAUSD! / SUIUSD!;
-  } else {
-    coinAAmount = await cetusPriceEstimateForSui(
-      PRICE_FEE[inputCoinIndex].priceFeeId,
-      PRICE_FEE[inputCoinIndex].decimal
-    );
+  constructor() {
+    this.connection = new HermesClient("https://hermes.pyth.network", {});
+    this.MainnetSDK = new CetusClmmSDK(mainnet);
   }
 
-  if (outputCoinIndex == 10) {
-    coinBAmount = 1;
-  } else if (outputCoinIndex < 12) {
-    const coinBUSD = await pythPriceEstimate(
-      PRICE_FEE[outputCoinIndex].priceFeeId
-    );
-    const SUIUSD = await pythPriceEstimate(PRICE_FEE[10].priceFeeId);
-    coinBAmount = coinBUSD! / SUIUSD!;
-  } else {
-    coinBAmount = await cetusPriceEstimateForSui(
-      PRICE_FEE[outputCoinIndex].priceFeeId,
-      PRICE_FEE[outputCoinIndex].decimal
-    );
+  async getPoolDetail(poolAddress: string) {
+    const poolDetail = await this.MainnetSDK.Pool.getPool(poolAddress);
+    return poolDetail;
   }
 
-  return type === "in"
-    ? (coinAAmount! / coinBAmount!) * amount
-    : (coinBAmount! / coinAAmount!) * amount;
-};
+  async pythPriceEstimate(cryptoPriceFee: string) {
+    const priceUpdates = await this.connection.getLatestPriceUpdates([
+      cryptoPriceFee,
+    ]);
+
+    if (priceUpdates["parsed"] && priceUpdates["parsed"].length > 0) {
+      const exponent = Math.abs(priceUpdates["parsed"][0]["price"]["expo"]);
+      const decimals = Math.pow(10, exponent);
+      const price =
+        Number(priceUpdates["parsed"][0]["price"]["price"]) / decimals;
+      return price;
+    } else {
+      console.error("priceUpdates['parsed'] is null or undefined or empty");
+    }
+  }
+
+  async cetusPriceEstimateForSui(poolAddress: string, decimalA: number) {
+    const pool = await this.getPoolDetail(poolAddress);
+    const price = TickMath.sqrtPriceX64ToPrice(
+      new BN(pool.current_sqrt_price),
+      decimalA,
+      SUI_DECIMAL
+    );
+
+    return price.toNumber();
+  }
+
+  async quote(
+    inputCoinIndex: number,
+    outputCoinIndex: number,
+    amount: number,
+    type: "in" | "out"
+  ) {
+    let coinAAmount;
+    let coinBAmount;
+
+    if (inputCoinIndex == 10) {
+      coinAAmount = 1;
+    } else if (inputCoinIndex < 12) {
+      const coinAUSD = await this.pythPriceEstimate(
+        PRICE_FEE[inputCoinIndex].priceFeeId
+      );
+      const SUIUSD = await this.pythPriceEstimate(PRICE_FEE[10].priceFeeId);
+      coinAAmount = coinAUSD! / SUIUSD!;
+    } else {
+      coinAAmount = await this.cetusPriceEstimateForSui(
+        PRICE_FEE[inputCoinIndex].priceFeeId,
+        PRICE_FEE[inputCoinIndex].decimal
+      );
+    }
+
+    if (outputCoinIndex == 10) {
+      coinBAmount = 1;
+    } else if (outputCoinIndex < 12) {
+      const coinBUSD = await this.pythPriceEstimate(
+        PRICE_FEE[outputCoinIndex].priceFeeId
+      );
+      const SUIUSD = await this.pythPriceEstimate(PRICE_FEE[10].priceFeeId);
+      coinBAmount = coinBUSD! / SUIUSD!;
+    } else {
+      coinBAmount = await this.cetusPriceEstimateForSui(
+        PRICE_FEE[outputCoinIndex].priceFeeId,
+        PRICE_FEE[outputCoinIndex].decimal
+      );
+    }
+
+    const price =
+      type === "in"
+        ? (coinAAmount! / coinBAmount!) * amount
+        : (coinBAmount! / coinAAmount!) * amount;
+
+    return price;
+  }
+}

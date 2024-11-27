@@ -1,5 +1,6 @@
 import { PaginatedEvents, SuiClient } from "@mysten/sui/client";
 import { PrismaClient } from "@prisma/client";
+import { v4 as uuid } from "uuid";
 
 export class SuiService {
   private client: SuiClient;
@@ -29,12 +30,12 @@ export class SuiService {
   }
 
   async getOwnedTraderCard({ owner }: { owner: string }) {
-    if (!process.env.NEXT_PUBLIC_PACKAGE) {
+    if (!process.env.NEXT_PUBLIC_PACKAGE_ASSET) {
       throw new Error("PACKAGE not found");
     }
     const traderCards = await this.client.getOwnedObjects({
       filter: {
-        StructType: `${process.env.NEXT_PUBLIC_PACKAGE}::trader::Trader`,
+        StructType: `${process.env.NEXT_PUBLIC_PACKAGE_ASSET}::trader::Trader`,
       },
       options: {
         showDisplay: true,
@@ -77,7 +78,7 @@ export class SuiService {
   }
 
   async upsertArenaEvents() {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
       throw new Error("Package not found");
     }
@@ -93,7 +94,7 @@ export class SuiService {
     const nextCursor: PaginatedEvents["nextCursor"] = lastArena
       ? {
           txDigest: lastArena.tx_digest,
-          eventSeq: lastArena.event_seq,
+          eventSeq: lastArena.event_seq.toString(),
         }
       : undefined;
     const events = await this.queryEvents({
@@ -130,12 +131,12 @@ export class SuiService {
       return this.prisma.arena.upsert({
         where: {
           object_id: arenaData.id,
-          event_seq: event.id.eventSeq,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
         },
         update: {
           object_id: arenaData.id,
-          event_seq: event.id.eventSeq,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
           timestamp,
           start_time: arenaData.start_time,
@@ -145,7 +146,7 @@ export class SuiService {
         },
         create: {
           object_id: arenaData.id,
-          event_seq: event.id.eventSeq,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
           timestamp,
           start_time: arenaData.start_time,
@@ -160,7 +161,7 @@ export class SuiService {
   }
 
   async upsertFundEvents() {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
       throw new Error("Package not found");
     }
@@ -181,7 +182,7 @@ export class SuiService {
     const nextCursor: PaginatedEvents["nextCursor"] = lastFund
       ? {
           txDigest: lastFund.tx_digest,
-          eventSeq: lastFund.event_seq,
+          eventSeq: lastFund.event_seq.toString(),
         }
       : undefined;
     console.log(nextCursor, "nextCursor");
@@ -223,7 +224,7 @@ export class SuiService {
         owner_id: string;
         limit_amount: string;
         expected_roi: string;
-        event_seq: string;
+        event_seq: number;
         tx_digest: string;
         timestamp: string;
       } = {
@@ -238,14 +239,14 @@ export class SuiService {
         owner_id: data.trader,
         limit_amount: data.limit_amount,
         expected_roi: (Number(data.expected_roi) / 100).toString(),
-        event_seq: event.id.eventSeq,
+        event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
         timestamp,
       };
       return this.prisma.fund.upsert({
         where: {
           object_id: data.id,
-          event_seq: event.id.eventSeq,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
         },
         update: object,
@@ -257,7 +258,7 @@ export class SuiService {
   }
 
   async upsertAttendEvents() {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
       throw new Error("Package not found");
     }
@@ -278,7 +279,7 @@ export class SuiService {
     const nextCursor: PaginatedEvents["nextCursor"] = lastFund
       ? {
           txDigest: lastFund.tx_digest,
-          eventSeq: lastFund.event_seq,
+          eventSeq: lastFund.event_seq.toString(),
         }
       : undefined;
     const events = await this.queryEvents({
@@ -320,14 +321,14 @@ export class SuiService {
         owner_id: data.trader,
         limit_amount: data.limit_amount,
         expected_roi: (Number(data.expected_roi) / 100).toString(),
-        event_seq: event.id.eventSeq,
+        event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
         timestamp,
       };
       return this.prisma.fund.upsert({
         where: {
           object_id: data.fund,
-          event_seq: event.id.eventSeq,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
         },
         update: object,
@@ -339,7 +340,7 @@ export class SuiService {
   }
 
   async upsertTraderCardEvents() {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
       throw new Error("Package not found");
     }
@@ -355,7 +356,7 @@ export class SuiService {
     const nextCursor: PaginatedEvents["nextCursor"] = lastFund
       ? {
           txDigest: lastFund.tx_digest,
-          eventSeq: lastFund.event_seq,
+          eventSeq: lastFund.event_seq.toString(),
         }
       : undefined;
     const events = await this.queryEvents({
@@ -385,14 +386,14 @@ export class SuiService {
         description: data.description,
         image_blob_id: data.pfp_img,
         owner_address: data.minter,
-        event_seq: event.id.eventSeq,
+        event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
         timestamp,
       };
       return this.prisma.trader_card.upsert({
         where: {
           object_id: data.trader_id,
-          event_seq: event.id.eventSeq,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
         },
         update: object,
@@ -403,12 +404,15 @@ export class SuiService {
     return result;
   }
 
-  async upsertFundHistoryEvents() {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+  async upsertInvestedEvents() {
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
       throw new Error("Package not found");
     }
     const fundHistory = await this.prisma.fund_history.findFirst({
+      where: {
+        action: "Invested",
+      },
       orderBy: {
         timestamp: "desc",
       },
@@ -420,7 +424,7 @@ export class SuiService {
     const nextCursor: PaginatedEvents["nextCursor"] = fundHistory
       ? {
           txDigest: fundHistory.tx_digest,
-          eventSeq: fundHistory.event_seq,
+          eventSeq: fundHistory.event_seq.toString(),
         }
       : undefined;
     const events = await this.queryEvents({
@@ -431,59 +435,60 @@ export class SuiService {
     });
     console.log(events);
 
-    type FundHistoryData = {
+    type InvestedData = {
       fund_id: string;
       invest_amount: string;
       investor: string;
       share_id: string;
     };
 
-    const upserts = events.map((event) => {
-      console.log(event);
-      const data: FundHistoryData = event.parsedJson as FundHistoryData;
-      const timestamp = event.timestampMs ?? "0";
+    const upserts = await Promise.all(
+      events.map(async (event) => {
+        console.log(event);
+        const data: InvestedData = event.parsedJson as InvestedData;
+        const timestamp = event.timestampMs ?? "0";
 
-      const object: {
-        share_id: string;
-        fund_object_id: string;
-        redeemed: boolean;
-        amount: string;
-        investor: string;
-        event_seq: string;
-        tx_digest: string;
-        timestamp: string;
-      } = {
-        share_id: data.share_id,
-        fund_object_id: data.fund_id,
-        redeemed: false,
-        amount: data.invest_amount,
-        investor: data.investor,
-        event_seq: event.id.eventSeq,
-        tx_digest: event.id.txDigest,
-        timestamp,
-      };
-      return this.prisma.fund_history.upsert({
-        where: {
+        const object: {
+          share_id: string;
+          action: string;
+          fund_object_id: string;
+          redeemed: boolean;
+          amount: string;
+          investor: string;
+          event_seq: number;
+          tx_digest: string;
+          timestamp: string;
+        } = {
           share_id: data.share_id,
-          event_seq: event.id.eventSeq,
+          action: "Invested",
+          fund_object_id: data.fund_id,
+          redeemed: false,
+          amount: data.invest_amount,
+          investor: data.investor,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
-        },
-        update: object,
-        create: object,
-      });
-    });
-    const result = await this.prisma.$transaction(upserts);
+          timestamp,
+        };
+
+        return [
+          this.prisma.fund_history.create({
+            data: object,
+          }),
+        ];
+      })
+    );
+    const result = await this.prisma.$transaction(upserts.flatMap((x) => x));
     return result;
   }
 
-  async upsertSwapEvents() {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+  async upsertDeinvestedEvents() {
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
       throw new Error("Package not found");
     }
-    const traderOperation = await this.prisma.trader_operation.findFirst({
+    const fundHistory = await this.prisma.fund_history.findFirst({
       where: {
-        action: "Swap",
+        action: "Deinvested",
       },
       orderBy: {
         timestamp: "desc",
@@ -493,10 +498,223 @@ export class SuiService {
         event_seq: true,
       },
     });
+    const nextCursor: PaginatedEvents["nextCursor"] = fundHistory
+      ? {
+          txDigest: fundHistory.tx_digest,
+          eventSeq: fundHistory.event_seq.toString(),
+        }
+      : undefined;
+    const events = await this.queryEvents({
+      module: "fund",
+      packageId,
+      eventType: "Deinvested",
+      nextCursor,
+    });
+    console.log(events);
+
+    type DeinvestedData = {
+      fund_id: string;
+      withdraw_invest_amount: string;
+      investor: string;
+      remain_share: string;
+    };
+
+    const upserts = await Promise.all(
+      events.map(async (event) => {
+        console.log(event);
+        const data: DeinvestedData = event.parsedJson as DeinvestedData;
+        const timestamp = event.timestampMs ?? "0";
+
+        const object: {
+          share_id: string;
+          action: string;
+          fund_object_id: string;
+          redeemed: boolean;
+          amount: string;
+          investor: string;
+          event_seq: number;
+          tx_digest: string;
+          timestamp: string;
+        } = {
+          share_id: data.remain_share,
+          action: "Deinvested",
+          fund_object_id: data.fund_id,
+          redeemed: false,
+          amount: data.withdraw_invest_amount,
+          investor: data.investor,
+          event_seq: Number(event.id.eventSeq),
+          tx_digest: event.id.txDigest,
+          timestamp,
+        };
+
+        const share = await this.prisma.fund_history.findFirst({
+          where: {
+            share_id: data.remain_share,
+          },
+        });
+
+        const executions = [];
+        console.log(data);
+        console.log(data.remain_share);
+        executions.push(
+          this.prisma.fund_history.updateMany({
+            where: {
+              AND: [
+                {
+                  NOT: {
+                    share_id: { equals: data.remain_share },
+                  },
+                },
+                {
+                  fund_object_id: {
+                    equals: data.fund_id,
+                  },
+                },
+                {
+                  redeemed: {
+                    equals: false,
+                  },
+                },
+              ],
+            },
+            data: {
+              redeemed: true,
+            },
+          })
+        );
+
+        if (share) {
+          executions.push(
+            this.prisma.fund_history.create({
+              data: {
+                share_id: uuid(),
+                action: "Deinvested",
+                fund_object_id: data.fund_id,
+                redeemed: true,
+                amount: data.withdraw_invest_amount,
+                investor: data.investor,
+                event_seq: Number(event.id.eventSeq),
+                tx_digest: event.id.txDigest,
+                timestamp,
+              },
+            })
+          );
+        } else {
+          executions.push(
+            this.prisma.fund_history.create({
+              data: object,
+            })
+          );
+        }
+
+        return executions;
+      })
+    );
+    const result = await this.prisma.$transaction(upserts.flatMap((x) => x));
+    return result;
+  }
+
+  async upsertSettleEvents() {
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
+    if (!packageId) {
+      throw new Error("Package not found");
+    }
+    const settleResult = await this.prisma.settle_result.findFirst({
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
+
+      select: {
+        tx_digest: true,
+        event_seq: true,
+      },
+    });
+    const nextCursor: PaginatedEvents["nextCursor"] = settleResult
+      ? {
+          txDigest: settleResult.tx_digest,
+          eventSeq: settleResult.event_seq.toString(),
+        }
+      : undefined;
+    const events = await this.queryEvents({
+      module: "fund",
+      packageId,
+      eventType: "SettleResult",
+      nextCursor,
+    });
+    console.log(events);
+
+    type SettleResultData = {
+      fund: string;
+      trader: string;
+      is_matched_roi: boolean;
+    };
+
+    const upserts = events.map((event) => {
+      console.log(event);
+      const data: SettleResultData = event.parsedJson as SettleResultData;
+      const timestamp = event.timestampMs ?? "0";
+
+      const object: {
+        fund_object_id: string;
+        trader_id: string;
+        match_roi: boolean;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: string;
+      } = {
+        fund_object_id: data.fund,
+        trader_id: data.trader,
+        match_roi: data.is_matched_roi,
+        event_seq: Number(event.id.eventSeq),
+        tx_digest: event.id.txDigest,
+        timestamp,
+      };
+      return this.prisma.settle_result.upsert({
+        where: {
+          fund_object_id: data.fund,
+          event_seq: Number(event.id.eventSeq),
+          tx_digest: event.id.txDigest,
+        },
+        update: object,
+        create: object,
+      });
+    });
+
+    const result = await this.prisma.$transaction(upserts);
+    return result;
+  }
+
+  async upsertSwapEvents() {
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
+    if (!packageId) {
+      throw new Error("Package not found");
+    }
+    const traderOperation = await this.prisma.trader_operation.findFirst({
+      where: {
+        action: "Swap",
+      },
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
+      select: {
+        tx_digest: true,
+        event_seq: true,
+      },
+    });
     const nextCursor: PaginatedEvents["nextCursor"] = traderOperation
       ? {
           txDigest: traderOperation.tx_digest,
-          eventSeq: traderOperation.event_seq,
+          eventSeq: traderOperation.event_seq.toString(),
         }
       : undefined;
     const events = await this.queryEvents({
@@ -535,11 +753,11 @@ export class SuiService {
         amount_in: string;
         token_out: string;
         amount_out: string;
-        event_seq: string;
+        event_seq: number;
         tx_digest: string;
         timestamp: string;
       } = {
-        id: event.id.txDigest + event.id.eventSeq,
+        id: event.id.txDigest + Number(event.id.eventSeq),
         fund_object_id: data.fund,
         action: "Swap",
         protocol: data.protocol,
@@ -547,15 +765,15 @@ export class SuiService {
         amount_in: data.input_amount,
         token_out: data.output_coin_type.name,
         amount_out: data.output_amount,
-        event_seq: event.id.eventSeq,
+        event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
         timestamp,
       };
 
       return this.prisma.trader_operation.upsert({
         where: {
-          id: event.id.txDigest + event.id.eventSeq,
-          event_seq: event.id.eventSeq,
+          id: event.id.txDigest + Number(event.id.eventSeq),
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
         },
         update: object,
@@ -571,7 +789,7 @@ export class SuiService {
   }: {
     protocol: "Scallop" | "Bucket" | "Suilend";
   }) {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
       throw new Error("Package not found");
     }
@@ -591,7 +809,7 @@ export class SuiService {
     const nextCursor: PaginatedEvents["nextCursor"] = traderOperation
       ? {
           txDigest: traderOperation.tx_digest,
-          eventSeq: traderOperation.event_seq,
+          eventSeq: traderOperation.event_seq.toString(),
         }
       : undefined;
     const events = await this.queryEvents({
@@ -630,11 +848,11 @@ export class SuiService {
         amount_in: string;
         token_out: string;
         amount_out: string;
-        event_seq: string;
+        event_seq: number;
         tx_digest: string;
         timestamp: string;
       } = {
-        id: event.id.txDigest + event.id.eventSeq,
+        id: event.id.txDigest + Number(event.id.eventSeq),
         fund_object_id: data.fund,
         action: "Deposit",
         protocol: data.protocol,
@@ -642,15 +860,15 @@ export class SuiService {
         amount_in: data.in_amount,
         token_out: data.output_type.name,
         amount_out: data.output_amount,
-        event_seq: event.id.eventSeq,
+        event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
         timestamp,
       };
 
       return this.prisma.trader_operation.upsert({
         where: {
-          id: event.id.txDigest,
-          event_seq: event.id.eventSeq,
+          id: event.id.txDigest + Number(event.id.eventSeq),
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
         },
         update: object,
@@ -666,7 +884,7 @@ export class SuiService {
   }: {
     protocol: "Scallop" | "Bucket" | "Suilend";
   }) {
-    const packageId = process.env.NEXT_PUBLIC_PACKAGE;
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
     if (!packageId) {
       throw new Error("Package not found");
     }
@@ -686,7 +904,7 @@ export class SuiService {
     const nextCursor: PaginatedEvents["nextCursor"] = traderOperation
       ? {
           txDigest: traderOperation.tx_digest,
-          eventSeq: traderOperation.event_seq,
+          eventSeq: traderOperation.event_seq.toString(),
         }
       : undefined;
     const events = await this.queryEvents({
@@ -746,11 +964,11 @@ export class SuiService {
           amount_out: string;
           token_out2: string;
           amount_out2: string;
-          event_seq: string;
+          event_seq: number;
           tx_digest: string;
           timestamp: string;
         } = {
-          id: event.id.txDigest + event.id.eventSeq,
+          id: event.id.txDigest + Number(event.id.eventSeq),
           fund_object_id: data.fund,
           action: "Withdraw",
           protocol: data.protocol,
@@ -760,15 +978,15 @@ export class SuiService {
           amount_out: data.output_amount1,
           token_out2: data.output_type2.name,
           amount_out2: data.output_amount2,
-          event_seq: event.id.eventSeq,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
           timestamp,
         };
 
         return this.prisma.trader_operation.upsert({
           where: {
-            id: event.id.txDigest,
-            event_seq: event.id.eventSeq,
+            id: event.id.txDigest + Number(event.id.eventSeq),
+            event_seq: Number(event.id.eventSeq),
             tx_digest: event.id.txDigest,
           },
           update: bucketObject,
@@ -789,11 +1007,11 @@ export class SuiService {
           amount_in: string;
           token_out: string;
           amount_out: string;
-          event_seq: string;
+          event_seq: number;
           tx_digest: string;
           timestamp: string;
         } = {
-          id: event.id.txDigest + event.id.eventSeq,
+          id: event.id.txDigest + Number(event.id.eventSeq),
           fund_object_id: data.fund,
           action: "Withdraw",
           protocol: data.protocol,
@@ -801,15 +1019,15 @@ export class SuiService {
           amount_in: data.in_amount,
           token_out: data.output_type.name,
           amount_out: data.output_amount,
-          event_seq: event.id.eventSeq,
+          event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
           timestamp,
         };
 
         return this.prisma.trader_operation.upsert({
           where: {
-            id: event.id.txDigest,
-            event_seq: event.id.eventSeq,
+            id: event.id.txDigest + Number(event.id.eventSeq),
+            event_seq: Number(event.id.eventSeq),
             tx_digest: event.id.txDigest,
           },
           update: object,
@@ -818,6 +1036,105 @@ export class SuiService {
       }
     });
     const result = await this.prisma.$transaction(upserts);
+    return result;
+  }
+
+  async upsertClaimEvents() {
+    const packageId = process.env.NEXT_PUBLIC_PACKAGE_ASSET;
+    if (!packageId) {
+      throw new Error("Package not found");
+    }
+    const claimResult = await this.prisma.claim_result.findFirst({
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+        {
+          event_seq: "desc",
+        },
+      ],
+
+      select: {
+        tx_digest: true,
+        event_seq: true,
+      },
+    });
+    const nextCursor: PaginatedEvents["nextCursor"] = claimResult
+      ? {
+          txDigest: claimResult.tx_digest,
+          eventSeq: claimResult.event_seq.toString(),
+        }
+      : undefined;
+    const events = await this.queryEvents({
+      module: "fund",
+      packageId,
+      eventType: "Claimed<0x2::sui::SUI>",
+      nextCursor,
+    });
+    console.log(events);
+
+    type ClaimedResultData = {
+      fund: string;
+      receiver: string;
+      amount: string;
+      shares: string[];
+    };
+
+    const upserts = events.map((event) => {
+      console.log(event);
+      const data: ClaimedResultData = event.parsedJson as ClaimedResultData;
+      const timestamp = event.timestampMs ?? "0";
+
+      const executions = [];
+
+      const object: {
+        id: string;
+        fund_object_id: string;
+        receiver: string;
+        amount: string;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: string;
+      } = {
+        id: event.id.txDigest + Number(event.id.eventSeq),
+        fund_object_id: data.fund,
+        receiver: data.receiver,
+        amount: data.amount,
+        event_seq: Number(event.id.eventSeq),
+        tx_digest: event.id.txDigest,
+        timestamp,
+      };
+      executions.push(
+        this.prisma.claim_result.upsert({
+          where: {
+            id: event.id.txDigest + Number(event.id.eventSeq),
+            event_seq: Number(event.id.eventSeq),
+            tx_digest: event.id.txDigest,
+          },
+          update: object,
+          create: object,
+        })
+      );
+
+      data.shares.forEach((share) => {
+        console.log(share);
+        executions.push(
+          this.prisma.fund_history.update({
+            where: {
+              share_id: share,
+              fund_object_id: data.fund,
+            },
+            data: {
+              redeemed: true,
+            },
+          })
+        );
+      });
+
+      return executions;
+    });
+
+    const result = await this.prisma.$transaction(upserts.flatMap((x) => x));
     return result;
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Flex, Tabs, Text } from "@/styled-antd";
 import React, { useEffect, useState } from "react";
 import Funds from "../funds";
@@ -14,13 +15,20 @@ const Pools = () => {
     if (pools?.arenas?.length) {
       setArenaId(pools.arenas[0].object_id);
     }
+  }, [pools?.arenas.length]);
+
+  useEffect(() => {
     if (pools?.fundings?.length) {
       setFundingId(pools.fundings[0].object_id);
     }
+  }, [pools?.fundings.length]);
+
+  useEffect(() => {
     if (pools?.runnings?.length) {
       setRunningId(pools.runnings[0].object_id);
     }
-  }, [pools]);
+  }, [pools?.runnings.length]);
+
   const arenaStatus =
     Number(arena?.start_time) + Number(arena?.invest_duration) > Date.now()
       ? "funding"

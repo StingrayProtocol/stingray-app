@@ -103,6 +103,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
           tx.pure.bool(false), // is arena
           tx.pure.u64(Date.now()), //start time
           tx.pure.u64(endTime - startTime), //invest duration
+          // tx.pure.u64(endTime + 1000 * 60 * 60 * 12), // end time
           tx.pure.u64(endTime + tradeDuration), // end time
           tx.pure.u64(limit * 10 ** 9), // limit amount
           tx.pure.u64(roi * 100), // roi
@@ -146,7 +147,7 @@ const useCreateFund = (options?: UseCreateFundProps) => {
     ...options,
     onSuccess: async (data, variable, context) => {
       await syncDb.fund();
-      await syncDb.fundHistory();
+      await syncDb.invest();
       await refetch();
       message.success("Congratulations! You have successfully created a fund!");
       options?.onSuccess?.(data, variable, context);

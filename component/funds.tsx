@@ -5,6 +5,7 @@ import FundCard from "./fund-card";
 import Funding from "./dashboard/investor/fund-panel/funding";
 import { Empty } from "antd";
 import Running from "./dashboard/investor/fund-panel/running";
+import Claimable from "./dashboard/investor/fund-panel/claimable";
 
 const Funds = ({
   status,
@@ -17,13 +18,19 @@ const Funds = ({
   fundId?: string;
   onSelectFund: (fund: string) => void;
 }) => {
+  console.log(funds);
+  console.log("funds");
+  const hasFunds = (funds?.length ?? 0) > 0;
   return (
     <Flex gap="middle" vertical>
-      {Boolean(fundId) && status === "funding" && (
+      {Boolean(fundId) && hasFunds && status === "funding" && (
         <Funding fund={funds?.find((fund) => fund?.object_id === fundId)} />
       )}
-      {Boolean(fundId) && status === "running" && (
+      {Boolean(fundId) && hasFunds && status === "running" && (
         <Running fund={funds?.find((fund) => fund?.object_id === fundId)} />
+      )}
+      {Boolean(fundId) && hasFunds && status === "claimable" && (
+        <Claimable fund={funds?.find((fund) => fund?.object_id === fundId)} />
       )}
       {Boolean(fundId) && (
         <Divider
@@ -33,7 +40,7 @@ const Funds = ({
           }}
         />
       )}
-      {funds?.length === 0 && (
+      {!hasFunds && (
         <Empty
           style={{
             paddingTop: "100px",

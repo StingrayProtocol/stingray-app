@@ -27,7 +27,7 @@ export async function GET(req: Request) {
           SELECT *, 
           LAG(action) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_action,
           LAG(protocol) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_protocol,
-          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Suilend' THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
+          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Suilend' AND fund_object_id = ${fundId} THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
           FROM trader_operation
           ORDER BY timestamp DESC, event_seq DESC
       ) AS subquery
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
           SELECT *, 
           LAG(action) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_action,
           LAG(protocol) OVER (ORDER BY timestamp DESC, event_seq DESC) AS prev_protocol,
-          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Scallop' THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
+          SUM(CASE WHEN action = 'Withdraw' AND protocol = 'Scallop' AND fund_object_id = ${fundId} THEN 1 ELSE 0 END) OVER (ORDER BY timestamp DESC, event_seq DESC) AS withdraw_encountered
           FROM trader_operation
           ORDER BY timestamp DESC, event_seq DESC
       ) AS subquery
@@ -64,7 +64,11 @@ export async function GET(req: Request) {
       if (coin.name === "SUI") {
         const funded =
           fund?.fund_history?.reduce((acc, curr) => {
-            acc += Number(curr.amount);
+            if (curr.action === "Invested") {
+              acc += Number(curr.amount);
+            } else if (curr.action === "Deinvested") {
+              acc -= Number(curr.amount);
+            }
             return acc;
           }, 0) ?? 0;
         balance = funded;
@@ -227,6 +231,10 @@ export async function GET(req: Request) {
 
       balance =
         balance + swapReceived - swapPaid - depositPaid + withdrawReceived;
+
+      if (coin.name === "BUCK") {
+        balance = balance < 10 ? 0 : balance;
+      }
 
       return {
         name: coin.name,

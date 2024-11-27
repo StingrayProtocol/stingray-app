@@ -14,6 +14,7 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useState } from "react";
 import FundHistory from "./fund-history";
 import RemoveFundModal from "@/common/remove-fund-modal";
+import useGetFundHistory from "@/application/query/use-get-fund-history";
 
 const Funding = ({ fund }: { fund?: Fund }) => {
   const account = useCurrentAccount();
@@ -21,10 +22,19 @@ const Funding = ({ fund }: { fund?: Fund }) => {
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const notStarted = Number(fund?.start_time) > Date.now();
 
-  const total = fund?.fund_history?.reduce(
-    (acc, cur) => acc + Number(cur.amount),
-    0
-  );
+  const { data: history } = useGetFundHistory({
+    fundId: fund?.object_id,
+  });
+
+  const total = history?.length
+    ? history.reduce((acc, cur) => {
+        acc =
+          cur.action === "Invested"
+            ? acc + Number(cur.amount)
+            : acc - Number(cur.amount);
+        return acc;
+      }, 0)
+    : 0;
   const fundStatuses = [
     {
       label: "Target Funded Amount",
@@ -52,9 +62,10 @@ const Funding = ({ fund }: { fund?: Fund }) => {
       ? (total / Number(fund?.limit_amount)) * 100
       : 0;
 
-  const hasPosition = fund?.fund_history?.find(
-    (history) => history?.investor === account?.address
-  );
+  const _history = [...(history ?? [])];
+  const hasPosition = _history
+    ?.splice(0, 1)
+    ?.find((h) => h?.investor === account?.address);
   return (
     <Flex gap="large" vertical>
       <Flex
@@ -238,7 +249,7 @@ const Funding = ({ fund }: { fund?: Fund }) => {
                 vertical
                 gap="small"
               >
-                <FundHistory fund={fund} />
+                <FundHistory history={history} />
               </Flex>
             </Flex>
             <Flex
@@ -346,14 +357,16 @@ const Funding = ({ fund }: { fund?: Fund }) => {
         </Flex>
       </Flex>
       <AddFundModal
-        fund={fund}
+        fundId={fund?.object_id}
+        history={history}
         isOpen={isAddOpen}
         onClose={() => {
           setIsAddOpen(false);
         }}
       />
       <RemoveFundModal
-        fund={fund}
+        fundId={fund?.object_id}
+        history={history}
         isOpen={isRemoveOpen}
         onClose={() => {
           setIsRemoveOpen(false);

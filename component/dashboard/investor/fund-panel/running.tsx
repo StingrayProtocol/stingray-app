@@ -8,16 +8,38 @@ import { Flex, Text, Title, Tooltip } from "@/styled-antd";
 import { Fund } from "@/type";
 import { DollarOutlined } from "@ant-design/icons";
 import FundHistory from "./fund-history";
-import useGetPositionValue from "@/application/query/use-get-position-value_";
+import useGetPositionValue from "@/application/query/use-get-position-value";
+import MainButton from "@/common/main-button";
+import useTradeBackToSui from "@/application/mutation/use-trade-back-to-sui";
+import useSettle from "@/application/mutation/use-settle";
+import useGetFundHistory from "@/application/query/use-get-fund-history";
+import { Skeleton } from "antd";
 
 const Running = ({ fund }: { fund?: Fund }) => {
   const { data: traderCard } = useGetTraderCard({
     address: fund?.owner_id,
   });
-  const total = fund?.fund_history?.reduce(
-    (acc, cur) => acc + Number(cur.amount),
-    0
-  );
+
+  const { data: history } = useGetFundHistory({
+    fundId: fund?.object_id,
+  });
+  const total = history?.length
+    ? history.reduce((acc, cur) => {
+        acc =
+          cur.action === "Invested"
+            ? acc + Number(cur.amount)
+            : acc - Number(cur.amount);
+        return acc;
+      }, 0)
+    : 0;
+
+  const { mutate: tradeBack, isPending: isTradingBack } = useTradeBackToSui({
+    fundId: fund?.object_id,
+  });
+
+  const { mutate: settle, isPending: isSettling } = useSettle({
+    fundId: fund?.object_id,
+  });
 
   const fundStatuses = [
     {
@@ -41,9 +63,10 @@ const Running = ({ fund }: { fund?: Fund }) => {
     },
   ];
 
-  const { data: positionValue } = useGetPositionValue({
-    fundId: fund?.object_id,
-  });
+  const { data: positionValue, isPending: isGettingPositionValue } =
+    useGetPositionValue({
+      fundId: fund?.object_id,
+    });
 
   const positions = [
     {
@@ -63,9 +86,17 @@ const Running = ({ fund }: { fund?: Fund }) => {
     },
   ];
 
-  const tradeLogs = fund?.trader_operation.sort(
-    (a, b) => Number(b.timestamp) - Number(a.timestamp)
-  );
+  const tradeLogs = fund?.trader_operation.sort((a, b) => {
+    if (Number(b.timestamp) - Number(a.timestamp) > 0) {
+      return 1;
+    } else if (Number(b.timestamp) - Number(a.timestamp) < 0) {
+      return -1;
+    } else {
+      return Number(b.event_seq) - Number(a.event_seq);
+    }
+  });
+
+  const canSettle = (positionValue?.percent?.sui ?? 0) > 99.9;
 
   return (
     <Flex gap="large" vertical>
@@ -97,9 +128,54 @@ const Running = ({ fund }: { fund?: Fund }) => {
               border: "1px solid rgba(255, 255, 255, 0.5)",
             }}
           >
-            <Title style={{ fontSize: "24px", fontWeight: "bold" }}>
-              Fund Status
-            </Title>
+            <Flex justify="space-between" align="center">
+              <Title style={{ fontSize: "24px", fontWeight: "bold" }}>
+                Fund Status
+              </Title>
+              <Flex gap="8px">
+                <MainButton
+                  loading={isTradingBack || isGettingPositionValue}
+                  size="small"
+                  onClick={() => {
+                    tradeBack({
+                      fundId: fund?.object_id,
+                      traderId: traderCard?.object_id,
+                    });
+                  }}
+                >
+                  Swap All to SUI
+                </MainButton>
+                <Tooltip
+                  overlayInnerStyle={{
+                    background: "#2a0067",
+                  }}
+                  arrow={false}
+                  title={
+                    <Text>
+                      You can only settle when your SUI position is more than
+                      99.9%
+                    </Text>
+                  }
+                >
+                  <MainButton
+                    loading={isSettling || isGettingPositionValue}
+                    size="small"
+                    disabled={!canSettle}
+                    onClick={() => {
+                      settle({
+                        fundId: fund?.object_id,
+                        initShareId: fund?.fund_history.sort(
+                          (a, b) => Number(a.timestamp) - Number(b.timestamp)
+                        )[0].share_id,
+                      });
+                    }}
+                  >
+                    Settle
+                  </MainButton>
+                </Tooltip>
+              </Flex>
+            </Flex>
+
             <Flex gap="middle">
               {fundStatuses.map((fundStatus) => (
                 <Flex vertical gap="small" key={fundStatus.label} flex="1">
@@ -153,21 +229,28 @@ const Running = ({ fund }: { fund?: Fund }) => {
                 justify="start"
               >
                 <Flex justify="space-between">
-                  {positions
-                    .filter((position) => (position.value ?? 0) > 0)
-                    .map((position) => (
-                      <Flex key={position.name} flex={1}>
-                        <Text
-                          style={{
-                            fontSize: "12px",
-                            textAlign: "center",
-                          }}
-                        >
-                          {position.name}
-                        </Text>
-                      </Flex>
-                    ))}
+                  {positions.map((position) => (
+                    <Flex key={position.name} flex={1} align="center" gap="8px">
+                      <Text
+                        style={{
+                          fontSize: "12px",
+                          textAlign: "center",
+                        }}
+                      >
+                        {position.name}
+                      </Text>
+                      <div
+                        style={{
+                          background: position.color,
+                          height: "16px",
+                          width: "16px",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    </Flex>
+                  ))}
                 </Flex>
+
                 <Flex>
                   {positions.map((position) => (
                     <div
@@ -183,6 +266,15 @@ const Running = ({ fund }: { fund?: Fund }) => {
                     />
                   ))}
                 </Flex>
+                {isGettingPositionValue && (
+                  <Skeleton.Input
+                    style={{
+                      width: "100%",
+                      height: "20px",
+                    }}
+                    active
+                  />
+                )}
               </Flex>
               <Flex flex={1} gap="small">
                 {fundInfo.map((fundStatus) => (
@@ -285,7 +377,7 @@ const Running = ({ fund }: { fund?: Fund }) => {
                     </Tooltip>
                   );
                 })}
-                <FundHistory fund={fund} />
+                <FundHistory history={history} />
               </Flex>
             </Flex>
             <Flex

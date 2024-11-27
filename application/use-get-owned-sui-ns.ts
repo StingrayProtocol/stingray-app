@@ -60,6 +60,7 @@ const useGetOwnedSuiNS = (options?: UseGetOwnedSuiNSProps) => {
         hasNextPage: result.hasNextPage,
       };
     },
+    enabled: !!account,
     ...options,
   });
 };
