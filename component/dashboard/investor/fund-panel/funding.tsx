@@ -63,8 +63,9 @@ const Funding = ({ fund }: { fund?: Fund }) => {
       : 0;
 
   const _history = [...(history ?? [])];
+  _history?.shift();
   const hasPosition = _history
-    ?.splice(0, 1)
+    ?.sort((a, b) => Number(a.timestamp) - Number(b.timestamp))
     ?.find((h) => h?.investor === account?.address);
   return (
     <Flex gap="large" vertical>

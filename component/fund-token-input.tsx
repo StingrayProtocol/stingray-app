@@ -34,7 +34,6 @@ const FundTokenInput = ({
           return acc;
         }, 0) / Math.pow(10, 9)
     : 0;
-  console.log(history);
   const Current = () => {
     return (
       <Text
