@@ -113,47 +113,48 @@ export class SuiService {
       start_time: string;
     };
 
-    // const getPeriodType = (arena_type: number) => {
-    //   switch (arena_type) {
-    //     case 0:
-    //       return "WEEK";
-    //     case 1:
-    //       return "MONTH";
-    //     default:
-    //       return "WEEK";
-    //   }
-    // };
-
     const upserts = events.map((event) => {
       const arenaData: ArenaData = event.parsedJson as ArenaData;
       const timestamp = event.timestampMs ?? "0";
       console.log(event);
+
+      const start_time = Number(arenaData.start_time);
+      const end_time = Number(arenaData.end_time);
+      const attend_end_time = start_time + Number(arenaData.attend_duration);
+      const invest_end_time =
+        attend_end_time + Number(arenaData.invest_duration);
+      const trade_duration = end_time - invest_end_time;
+
+      const object: {
+        object_id: string;
+        start_time: number;
+        end_time: number;
+        invest_end_time: number;
+        attend_end_time: number;
+        trade_duration: number;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: number;
+      } = {
+        object_id: arenaData.id,
+        start_time,
+        end_time,
+        invest_end_time,
+        attend_end_time,
+        trade_duration: trade_duration,
+        event_seq: Number(event.id.eventSeq),
+        tx_digest: event.id.txDigest,
+        timestamp: Number(timestamp),
+      };
+
       return this.prisma.arena.upsert({
         where: {
           object_id: arenaData.id,
           event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
         },
-        update: {
-          object_id: arenaData.id,
-          event_seq: Number(event.id.eventSeq),
-          tx_digest: event.id.txDigest,
-          timestamp,
-          start_time: arenaData.start_time,
-          end_time: arenaData.end_time,
-          invest_duration: arenaData.invest_duration,
-          attend_duration: arenaData.attend_duration,
-        },
-        create: {
-          object_id: arenaData.id,
-          event_seq: Number(event.id.eventSeq),
-          tx_digest: event.id.txDigest,
-          timestamp,
-          start_time: arenaData.start_time,
-          end_time: arenaData.end_time,
-          invest_duration: arenaData.invest_duration,
-          attend_duration: arenaData.attend_duration,
-        },
+        update: object,
+        create: object,
       });
     });
     const result = await this.prisma.$transaction(upserts);
@@ -196,11 +197,11 @@ export class SuiService {
     type FundData = {
       name: string;
       description: string;
+      start_time: string;
       end_time: string;
+      invest_duration: string;
       fund_img: string;
       id: string;
-      invest_duration: string;
-      start_time: string;
       trader: string;
       trader_fee: string;
       limit_amount: string;
@@ -212,36 +213,43 @@ export class SuiService {
       const data: FundData = event.parsedJson as FundData;
       const timestamp = event.timestampMs ?? "0";
 
+      const start_time = Number(data.start_time);
+      const end_time = Number(data.end_time);
+      const invest_end_time = start_time + Number(data.invest_duration);
+      const trade_duration = end_time - invest_end_time;
+
       const object: {
         object_id: string;
         name: string;
         description: string;
-        start_time: string;
-        end_time: string;
-        invest_duration: string;
+        start_time: number;
+        end_time: number;
+        invest_end_time: number;
+        trade_duration: number;
         image_blob_id: string;
-        trader_fee: string;
+        trader_fee: number;
         owner_id: string;
-        limit_amount: string;
-        expected_roi: string;
+        limit_amount: number;
+        expected_roi: number;
         event_seq: number;
         tx_digest: string;
-        timestamp: string;
+        timestamp: number;
       } = {
         object_id: data.id,
         name: data.name,
         description: data.description,
-        start_time: data.start_time,
-        end_time: data.end_time,
-        invest_duration: data.invest_duration,
+        start_time,
+        end_time,
+        invest_end_time,
+        trade_duration,
         image_blob_id: data.fund_img,
-        trader_fee: (Number(data.trader_fee) / 100).toString(),
+        trader_fee: Number(data.trader_fee) / 100,
         owner_id: data.trader,
-        limit_amount: data.limit_amount,
-        expected_roi: (Number(data.expected_roi) / 100).toString(),
+        limit_amount: Number(data.limit_amount),
+        expected_roi: Number(data.expected_roi) / 100,
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
-        timestamp,
+        timestamp: Number(timestamp),
       };
       return this.prisma.fund.upsert({
         where: {
@@ -308,22 +316,46 @@ export class SuiService {
       console.log(event);
       const data: ArenaFundData = event.parsedJson as ArenaFundData;
       const timestamp = event.timestampMs ?? "0";
-      const object = {
+
+      const start_time = Number(data.start_time);
+      const end_time = Number(data.end_time);
+      const invest_end_time = start_time + Number(data.invest_duration);
+      const trade_duration = end_time - invest_end_time;
+
+      const object: {
+        object_id: string;
+        name: string;
+        description: string;
+        start_time: number;
+        end_time: number;
+        invest_end_time: number;
+        trade_duration: number;
+        image_blob_id: string;
+        arena_object_id: string;
+        trader_fee: number;
+        owner_id: string;
+        limit_amount: number;
+        expected_roi: number;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: number;
+      } = {
         object_id: data.fund,
         name: data.name,
         description: data.description,
-        start_time: data.start_time,
-        end_time: data.end_time,
-        invest_duration: data.invest_duration,
+        start_time,
+        end_time,
+        invest_end_time,
+        trade_duration,
         image_blob_id: data.fund_img,
         arena_object_id: data.arena,
-        trader_fee: (Number(data.trader_fee) / 100).toString(),
+        trader_fee: Number(data.trader_fee) / 100,
         owner_id: data.trader,
-        limit_amount: data.limit_amount,
-        expected_roi: (Number(data.expected_roi) / 100).toString(),
+        limit_amount: Number(data.limit_amount),
+        expected_roi: Number(data.expected_roi) / 100,
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
-        timestamp,
+        timestamp: Number(timestamp),
       };
       return this.prisma.fund.upsert({
         where: {
@@ -379,7 +411,17 @@ export class SuiService {
       console.log(event);
       const data: TraderCardData = event.parsedJson as TraderCardData;
       const timestamp = event.timestampMs ?? "0";
-      const object = {
+      const object: {
+        object_id: string;
+        first_name: string;
+        last_name: string;
+        description: string;
+        image_blob_id: string;
+        owner_address: string;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: number;
+      } = {
         object_id: data.trader_id,
         first_name: data.new_first_name === "" ? "Sui" : data.new_first_name,
         last_name: data.new_last_name === "" ? "PaulWu" : data.new_last_name,
@@ -388,7 +430,7 @@ export class SuiService {
         owner_address: data.minter,
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
-        timestamp,
+        timestamp: Number(timestamp),
       };
       return this.prisma.trader_card.upsert({
         where: {
@@ -442,42 +484,38 @@ export class SuiService {
       share_id: string;
     };
 
-    const upserts = await Promise.all(
-      events.map(async (event) => {
-        console.log(event);
-        const data: InvestedData = event.parsedJson as InvestedData;
-        const timestamp = event.timestampMs ?? "0";
+    const upserts = events.map((event) => {
+      console.log(event);
+      const data: InvestedData = event.parsedJson as InvestedData;
+      const timestamp = event.timestampMs ?? "0";
 
-        const object: {
-          share_id: string;
-          action: string;
-          fund_object_id: string;
-          redeemed: boolean;
-          amount: string;
-          investor: string;
-          event_seq: number;
-          tx_digest: string;
-          timestamp: string;
-        } = {
-          share_id: data.share_id,
-          action: "Invested",
-          fund_object_id: data.fund_id,
-          redeemed: false,
-          amount: data.invest_amount,
-          investor: data.investor,
-          event_seq: Number(event.id.eventSeq),
-          tx_digest: event.id.txDigest,
-          timestamp,
-        };
+      const object: {
+        share_id: string;
+        action: string;
+        fund_object_id: string;
+        redeemed: boolean;
+        amount: number;
+        investor: string;
+        event_seq: number;
+        tx_digest: string;
+        timestamp: number;
+      } = {
+        share_id: data.share_id,
+        action: "Invested",
+        fund_object_id: data.fund_id,
+        redeemed: false,
+        amount: Number(data.invest_amount),
+        investor: data.investor,
+        event_seq: Number(event.id.eventSeq),
+        tx_digest: event.id.txDigest,
+        timestamp: Number(timestamp),
+      };
 
-        return [
-          this.prisma.fund_history.create({
-            data: object,
-          }),
-        ];
-      })
-    );
-    const result = await this.prisma.$transaction(upserts.flatMap((x) => x));
+      return this.prisma.fund_history.create({
+        data: object,
+      });
+    });
+    const result = await this.prisma.$transaction(upserts);
     return result;
   }
 
@@ -530,21 +568,21 @@ export class SuiService {
           action: string;
           fund_object_id: string;
           redeemed: boolean;
-          amount: string;
+          amount: number;
           investor: string;
           event_seq: number;
           tx_digest: string;
-          timestamp: string;
+          timestamp: number;
         } = {
           share_id: data.remain_share,
           action: "Deinvested",
           fund_object_id: data.fund_id,
           redeemed: false,
-          amount: data.withdraw_invest_amount,
+          amount: Number(data.withdraw_invest_amount),
           investor: data.investor,
           event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
-          timestamp,
+          timestamp: Number(timestamp),
         };
 
         const share = await this.prisma.fund_history.findFirst({
@@ -587,15 +625,9 @@ export class SuiService {
           executions.push(
             this.prisma.fund_history.create({
               data: {
+                ...object,
                 share_id: uuid(),
-                action: "Deinvested",
-                fund_object_id: data.fund_id,
                 redeemed: true,
-                amount: data.withdraw_invest_amount,
-                investor: data.investor,
-                event_seq: Number(event.id.eventSeq),
-                tx_digest: event.id.txDigest,
-                timestamp,
               },
             })
           );
@@ -663,16 +695,18 @@ export class SuiService {
         fund_object_id: string;
         trader_id: string;
         match_roi: boolean;
+        roi: number;
         event_seq: number;
         tx_digest: string;
-        timestamp: string;
+        timestamp: number;
       } = {
         fund_object_id: data.fund,
         trader_id: data.trader,
         match_roi: data.is_matched_roi,
+        roi: 0,
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
-        timestamp,
+        timestamp: Number(timestamp),
       };
       return this.prisma.settle_result.upsert({
         where: {
@@ -750,24 +784,28 @@ export class SuiService {
         action: string;
         protocol: string;
         token_in: string;
-        amount_in: string;
+        amount_in: number;
+        token_in2?: string;
+        amount_in2?: number;
         token_out: string;
-        amount_out: string;
+        amount_out: number;
+        token_out2?: string;
+        amount_out2?: number;
         event_seq: number;
         tx_digest: string;
-        timestamp: string;
+        timestamp: number;
       } = {
         id: event.id.txDigest + Number(event.id.eventSeq),
         fund_object_id: data.fund,
         action: "Swap",
         protocol: data.protocol,
         token_in: data.input_coin_type.name,
-        amount_in: data.input_amount,
+        amount_in: Number(data.input_amount),
         token_out: data.output_coin_type.name,
-        amount_out: data.output_amount,
+        amount_out: Number(data.output_amount),
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
-        timestamp,
+        timestamp: Number(timestamp),
       };
 
       return this.prisma.trader_operation.upsert({
@@ -845,24 +883,28 @@ export class SuiService {
         action: string;
         protocol: string;
         token_in: string;
-        amount_in: string;
+        amount_in: number;
+        token_in2?: string;
+        amount_in2?: number;
         token_out: string;
-        amount_out: string;
+        amount_out: number;
+        token_out2?: string;
+        amount_out2?: number;
         event_seq: number;
         tx_digest: string;
-        timestamp: string;
+        timestamp: number;
       } = {
         id: event.id.txDigest + Number(event.id.eventSeq),
         fund_object_id: data.fund,
         action: "Deposit",
         protocol: data.protocol,
         token_in: data.input_type.name,
-        amount_in: data.in_amount,
+        amount_in: Number(data.in_amount),
         token_out: data.output_type.name,
-        amount_out: data.output_amount,
+        amount_out: Number(data.output_amount),
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
-        timestamp,
+        timestamp: Number(timestamp),
       };
 
       return this.prisma.trader_operation.upsert({
@@ -959,28 +1001,30 @@ export class SuiService {
           action: string;
           protocol: string;
           token_in: string;
-          amount_in: string;
+          amount_in: number;
+          token_in2?: string;
+          amount_in2?: number;
           token_out: string;
-          amount_out: string;
-          token_out2: string;
-          amount_out2: string;
+          amount_out: number;
+          token_out2?: string;
+          amount_out2?: number;
           event_seq: number;
           tx_digest: string;
-          timestamp: string;
+          timestamp: number;
         } = {
           id: event.id.txDigest + Number(event.id.eventSeq),
           fund_object_id: data.fund,
           action: "Withdraw",
           protocol: data.protocol,
           token_in: data.input_type.name,
-          amount_in: data.in_amount,
+          amount_in: Number(data.in_amount),
           token_out: data.output_type1.name,
-          amount_out: data.output_amount1,
+          amount_out: Number(data.output_amount1),
           token_out2: data.output_type2.name,
-          amount_out2: data.output_amount2,
+          amount_out2: Number(data.output_amount2),
           event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
-          timestamp,
+          timestamp: Number(timestamp),
         };
 
         return this.prisma.trader_operation.upsert({
@@ -1004,24 +1048,28 @@ export class SuiService {
           action: string;
           protocol: string;
           token_in: string;
-          amount_in: string;
+          amount_in: number;
+          token_in2?: string;
+          amount_in2?: number;
           token_out: string;
-          amount_out: string;
+          amount_out: number;
+          token_out2?: string;
+          amount_out2?: number;
           event_seq: number;
           tx_digest: string;
-          timestamp: string;
+          timestamp: number;
         } = {
           id: event.id.txDigest + Number(event.id.eventSeq),
           fund_object_id: data.fund,
           action: "Withdraw",
           protocol: data.protocol,
           token_in: data.input_type.name,
-          amount_in: data.in_amount,
+          amount_in: Number(data.in_amount),
           token_out: data.output_type.name,
-          amount_out: data.output_amount,
+          amount_out: Number(data.output_amount),
           event_seq: Number(event.id.eventSeq),
           tx_digest: event.id.txDigest,
-          timestamp,
+          timestamp: Number(timestamp),
         };
 
         return this.prisma.trader_operation.upsert({
@@ -1091,18 +1139,18 @@ export class SuiService {
         id: string;
         fund_object_id: string;
         receiver: string;
-        amount: string;
+        amount: number;
         event_seq: number;
         tx_digest: string;
-        timestamp: string;
+        timestamp: number;
       } = {
         id: event.id.txDigest + Number(event.id.eventSeq),
         fund_object_id: data.fund,
         receiver: data.receiver,
-        amount: data.amount,
+        amount: Number(data.amount),
         event_seq: Number(event.id.eventSeq),
         tx_digest: event.id.txDigest,
-        timestamp,
+        timestamp: Number(timestamp),
       };
       executions.push(
         this.prisma.claim_result.upsert({

@@ -8,8 +8,8 @@ export async function GET(req: Request) {
   if (!fundId) {
     return Response.error();
   }
-  const fundHistory =
-    (await prisma.fund_history.findMany({
+  const operations =
+    (await prisma.trader_operation.findMany({
       where: {
         fund_object_id: fundId,
       },
@@ -17,5 +17,5 @@ export async function GET(req: Request) {
         timestamp: "asc",
       },
     })) ?? [];
-  return Response.json(fundHistory);
+  return Response.json(operations);
 }

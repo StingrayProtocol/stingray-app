@@ -70,7 +70,7 @@ const Page = () => {
     if (arenas) {
       const _arenaInfos = arenas?.map((arena) => {
         const totalFund = arena.fund_history.reduce(
-          (acc, cur) => acc + parseFloat(cur.amount),
+          (acc, cur) => acc + cur.amount,
           0
         );
         const investSet = new Set(

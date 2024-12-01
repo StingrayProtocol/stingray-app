@@ -5,23 +5,27 @@ export type TraderOperation = {
   action: string;
   protocol: string;
   token_in: string;
-  amount_in: string;
+  amount_in: number;
+  token_in2?: string;
+  amount_in2?: number;
   token_out: string;
   amount_out: string;
-  event_seq: string;
+  token_out2?: string;
+  amount_out2?: string;
+  event_seq: number;
   tx_digest: string;
   timestamp: string;
 };
 
 export type FundHistory = {
   share_id: string;
-  fund: Fund;
+  fund?: Fund;
   fund_object_id: string;
   action: "Invested" | "Deinvested";
-  amount: string;
+  amount: number;
   redeemed: boolean;
   investor: string;
-  event_seq: string;
+  event_seq: number;
   tx_digest: string;
   timestamp: string;
 };
@@ -30,32 +34,32 @@ export type Fund = {
   object_id: string;
   name: string;
   description: string;
-  start_time: string;
-  end_time: string;
-  invest_duration: string;
+  start_time: number;
+  end_time: number;
+  invest_duration: number;
   image_blob_id: string;
-  arena: Arena;
-  arena_object_id: string;
+  arena?: Arena;
+  arena_object_id: string | null;
   owner_id: string;
-  owner: TraderCard;
-  fund_history: FundHistory[];
-  trader_operation: TraderOperation[];
-  trader_fee: string;
-  limit_amount: string;
-  expected_roi: string;
-  event_seq: string;
+  owner?: TraderCard;
+  fund_history?: FundHistory[];
+  trader_operation?: TraderOperation[];
+  trader_fee: number;
+  limit_amount: number;
+  expected_roi: number;
+  event_seq: number;
   tx_digest: string;
   timestamp: string;
 };
 
 export type Arena = {
   object_id: string;
-  start_time: string;
-  end_time: string;
-  invest_duration: string;
-  attend_duration: string;
+  start_time: number;
+  end_time: number;
+  invest_duration: number;
+  attend_duration: number;
   fund: Fund;
-  event_seq: string;
+  event_seq: number;
   tx_digest: string;
   timestamp: string;
 };
@@ -67,7 +71,7 @@ export type TraderCard = {
   description: string;
   image_blob_id: string;
   owner_address: string;
-  event_seq: string;
+  event_seq: number;
   tx_digest: string;
   timestamp: string;
   trader_operation: TraderOperation[];
@@ -118,3 +122,5 @@ export type PositionValue = {
   };
   balances: FundBalance;
 };
+
+export type TradeDuration = "1w" | "1m" | "3m" | "1y";
